@@ -33,6 +33,9 @@ ALLOWED_HOSTS = ['gatherring-test.eba-vjnspjym.us-west-2.elasticbeanstalk.com', 
 
 INSTALLED_APPS = [
     'user',
+    'main',
+    'group',
+    'event',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,6 +95,7 @@ else:
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 
+AUTH_USER_MODEL = 'user.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
