@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-yv^xmt(uvvenz&84_facy0xea!3-blx6&=*1!e8%at9so7ne13
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gatherring-test.eba-vjnspjym.us-west-2.elasticbeanstalk.com', '127.0.0.1', 'localhost','172.31.30.159',
-                 '52.38.201.189']
+ALLOWED_HOSTS = ['gatherring-test.eba-vjnspjym.us-west-2.elasticbeanstalk.com', '127.0.0.1', 'localhost','172.31.30.159']
 
 
 # Application definition
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,7 +77,6 @@ WSGI_APPLICATION = 'GatherRing.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-from decouple import config
 
 DATABASES = {}
 if 'RDS_DB_NAME' in os.environ:
@@ -92,12 +91,8 @@ if 'RDS_DB_NAME' in os.environ:
 
 else:
     DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('NAME'),
-        'USER': config('USER'),
-        'PASSWORD': config('PASSWORD'),
-        'HOST': config('HOST'),
-        'PORT': config('PORT', cast=int),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 
 AUTH_USER_MODEL = 'user.User'
