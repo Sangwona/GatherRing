@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-yv^xmt(uvvenz&84_facy0xea!3-blx6&=*1!e8%at9so7ne13
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gatherring-test.eba-vjnspjym.us-west-2.elasticbeanstalk.com', '127.0.0.1', 'localhost','172.31.30.159']
+ALLOWED_HOSTS = ['gatherring-test.eba-vjnspjym.us-west-2.elasticbeanstalk.com', '127.0.0.1', 'localhost','172.31.30.159',
+                 '52.38.201.189']
 
 
 # Application definition
