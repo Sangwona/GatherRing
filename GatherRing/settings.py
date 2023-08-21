@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-yv^xmt(uvvenz&84_facy0xea!3-blx6&=*1!e8%at9so7ne13
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gather-ring-test.us-west-2.elasticbeanstalk.com', '*']
+ALLOWED_HOSTS = ['gather-ring-test.us-west-2.elasticbeanstalk.com', 'localhost']
 
 
 # Application definition
