@@ -77,6 +77,7 @@ WSGI_APPLICATION = 'GatherRing.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+from decouple import config
 
 DATABASES = {}
 if 'RDS_DB_NAME' in os.environ:
@@ -91,8 +92,12 @@ if 'RDS_DB_NAME' in os.environ:
 
 else:
     DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('NAME'),
+        'USER': config('USER'),
+        'PASSWORD': config('PASSWORD'),
+        'HOST': config('HOST'),
+        'PORT': config('PORT', cast=int),
     }
 
 AUTH_USER_MODEL = 'user.User'
