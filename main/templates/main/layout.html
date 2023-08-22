@@ -9,11 +9,37 @@
         {% endblock %}
     </head>
     <body>
-        <div class="container">
-            {% block body %}
-            You successfully logged in :) 
-            {% endblock %}
-        </div>
-        
+        <div class="container-fluid h-100">
+            <div class="row h-100 justify-content-start">
+                <!-- Sidebar -->
+                <nav class="col-2 navigation bg-light">
+                    <a class="navbar-brand">GatherRing</a>
+                    <div>
+                        <ul class="navbar-nav mr-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+                <!--Main body-->
+                <div class="col-8" style="text-align: justify;">
+                    {% block body %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>  
     </body>
 </html>
