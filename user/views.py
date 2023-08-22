@@ -31,7 +31,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("user"))
+    return HttpResponseRedirect(reverse("index"))
 
 
 def register(request):
@@ -56,6 +56,6 @@ def register(request):
                 "message": "Email address already taken."
             })
         login(request, user)
-        return HttpResponseRedirect(reverse("user"))
+        return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "user/register.html")
