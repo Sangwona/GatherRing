@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,22 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yv^xmt(uvvenz&84_facy0xea!3-blx6&=*1!e8%at9so7ne13'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['gather-ring-test.us-west-2.elasticbeanstalk.com', 'localhost']
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'user',
     'main',
     'group',
     'event',
+    'storages',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,7 +76,6 @@ WSGI_APPLICATION = 'GatherRing.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-from decouple import config
 
 DATABASES = {}
 if 'RDS_DB_NAME' in os.environ:
@@ -89,7 +87,6 @@ if 'RDS_DB_NAME' in os.environ:
         'HOST': os.environ['RDS_HOSTNAME'],
         'PORT': os.environ['RDS_PORT'],
     }
-
 else:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -131,6 +128,26 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+if 'S3_BUCKET_NAME' in os.environ:
+    AWS_STORAGE_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+    AWS_S3_REGION_NAME = os.environ['S3_REGION_NAME']
+    AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY']
+    AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
+    AWS_S3_CUSTOM_DOMAIN = os.environ['S3_CUSTOM_DOMAIN']
+
+else:
+    AWS_STORAGE_BUCKET_NAME = config('S3_BUCKET_NAME')
+    AWS_S3_REGION_NAME = config('S3_REGION_NAME')
+    AWS_ACCESS_KEY_ID = config('ACCESS_KEY')
+    AWS_SECRET_ACCESS_KEY = config('SECRET_ACCESS_KEY')
+    # Tell django-storages the domain to use to refer to static files.
+    AWS_S3_CUSTOM_DOMAIN = config('S3_CUSTOM_DOMAIN')
+
+
+
+# Tell the staticfiles app to use S3Boto3 storage when writing the collected static files 
+# (when you run `collectstatic`).
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATIC_URL = 'static/'
 
