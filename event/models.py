@@ -28,7 +28,7 @@ class Event(models.Model):
     end_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
+    creator = models.ForeignKey('user.User', on_delete=models.CASCADE, related_name='created_events')
 
     hosts = models.ManyToManyField('user.User', related_name='hosting_events')
     attendees = models.ManyToManyField('user.User', blank=True, related_name="attending_events")
