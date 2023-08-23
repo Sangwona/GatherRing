@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from main.models import JoinMode, Interest, Photo
-from user.models import User
-from group.models import Group
+from main.models import JoinMode
+
 
 # Create your models here.
 class EventVisibility(models.TextChoices):
