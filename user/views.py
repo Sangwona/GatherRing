@@ -1,9 +1,8 @@
-from django.shortcuts import HttpResponse, HttpResponseRedirect, render
-from django.contrib.auth import authenticate, login, logout
-from django.urls import reverse
-from django.db import IntegrityError
+from django.shortcuts import HttpResponse, render, redirect
+from django.contrib.auth import login, logout
 
-from .models import User
+from .forms import RegisterForm, LoginForm
+
 # Create your views here.
 
 def user(request):
@@ -11,51 +10,35 @@ def user(request):
 
 def login_view(request):
     if request.method == "POST":
-
-        # Attempt to sign user in
-        email = request.POST["email"]
-        password = request.POST["password"]
-        user = authenticate(request, username=email, password=password)
-
-        # Check if authentication successful
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+        form = LoginForm(data=request.POST)
+        if (form.is_valid()):
+            login(request, form.get_user())
+            return redirect("index")
         else:
             return render(request, "user/login.html", {
-                "message": "Invalid email and/or password."
-            })
+            'form': form
+        })
     else:
-        return render(request, "user/login.html")
-
+        return render(request, "user/login.html", {
+            'form': LoginForm()
+        })
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
-
+    return redirect("index")
 
 def register(request):
     if request.method == "POST":
-        email = request.POST["email"]
-
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
+        form = RegisterForm(request.POST)
+        if (form.is_valid()):
+            user = form.save()
+            login(request, user)
+            return redirect("index")
+        else:
             return render(request, "user/register.html", {
-                "message": "Passwords must match."
-            })
-
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(email, email, password)
-            user.save()
-        except IntegrityError as e:
-            print(e)
-            return render(request, "user/register.html", {
-                "message": "Email address already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+            'form': form
+        })
     else:
-        return render(request, "user/register.html")
+        return render(request, "user/register.html", {
+            'form': RegisterForm()
+        })
