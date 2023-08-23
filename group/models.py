@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from main.models import JoinMode
 
 # Create your models here.
@@ -25,6 +26,15 @@ class Group(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    def save(self, *args, **kwargs):
+        is_new = not bool(self.pk)  # check if the object is newly created
+        super().save(*args, **kwargs)  # save the instance to get its id
+
+        if is_new:
+        # add the creator as an admins/members
+            self.admins.add(self.creator)
+            self.members.add(self.creator)
         
 class GroupRequest(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='requests')
