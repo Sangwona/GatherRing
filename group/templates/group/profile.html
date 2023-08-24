@@ -6,7 +6,7 @@
     {% endif %}
 
     <h1>{{ group.name }}</h1>
-    <p>Details: {{ group.description }}</p>
+    <p>Description: {{ group.description }}</p>
     <p>Location: {{ group.location }}</p>
     <p>Visibility: {{ group.visibility }}</p>
     <p>Join Mode: {{ group.join_mode }}</p>
@@ -27,11 +27,11 @@
     <div class="d-flex justify-content-center">
         {% if user.is_authenticated %}
             {% if user in group.admins.all %}
-                <a class="btn btn-secondary m-2" href="#">Create Event</a>
                 <a class="btn btn-secondary m-2" href="#">Manage Group</a>
                 <a class="btn btn-secondary m-2" href="#">Edit Group</a>
                 <a class="btn btn-danger m-2" href="#">Delete Group</a>
             {% elif user in group.members.all %}
+                <a class="btn btn-secondary m-2" href="#">Create Event</a>
                 <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Leave Group</button>
             {% elif group.join_mode == "REQUEST"%}
                 {% if request_exists %}

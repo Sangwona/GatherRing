@@ -6,11 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 
-def group(request, group_id):
+def profile(request, group_id):
     group = Group.objects.get(pk=group_id)
     return render(request, "group/profile.html", {
         'group': group,
-        "request_exists": group.requests.filter(user=request.user).exists()
+        'request_exists': group.requests.filter(user=request.user).exists()
     })
 
 class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
@@ -30,4 +30,4 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
         for interest in form_dict['1'].cleaned_data['interests']:
             instance.interests.add(interest) 
 
-        return redirect('group', instance.id)
+        return redirect('group_profile', instance.id)
