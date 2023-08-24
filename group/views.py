@@ -10,12 +10,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 def group(request):
     return HttpResponse("Hello, group!")
 
-class FormWizardView(LoginRequiredMixin, SessionWizardView):
+class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
     login_url = '/user/login'  # Set custom login URL
-    redirect_field_name = 'next'  # Set custom redirect field name
-    raise_exception = False  # Raise an exception instead of redirecting (optional)
-
-    template_name = "group/wizard.html"
+    template_name = "group/create.html"
     form_list = [LocationForm1, InterestsForm2, NameForm3, DescriptionForm4]
 
     def done(self, form_list, form_dict, **kwargs):

@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path("", views.group, name="group"),
-    path("createGroup", views.FormWizardView.as_view(), name="createGroup"),
+    path("create", views.CreateGroupFormWizard.as_view(), name="create_group"),
 ]

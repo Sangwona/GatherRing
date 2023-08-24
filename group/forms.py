@@ -1,5 +1,6 @@
 from django import forms
 from .models import Group
+from main.models import Interest
 
 class LocationForm1(forms.ModelForm):
     class Meta:

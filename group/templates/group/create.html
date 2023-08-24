@@ -10,12 +10,12 @@
     {% endif %}
     {{ wizard.management_form }}
     {% if wizard.form.forms %}
-    {{ wizard.form.management_form }}
-    {% for form in wizard.form.forms %}
-    {{ form }}
-    {% endfor %}
+        {{ wizard.form.management_form }}
+        {% for form in wizard.form.forms %}
+            {{ form }}
+        {% endfor %}
     {% else %}
-    {{ wizard.form }}
+        {{ wizard.form }}
     {% endif %}
   </table>
   <input id="btn-submit" type="submit" value="Next"/>
