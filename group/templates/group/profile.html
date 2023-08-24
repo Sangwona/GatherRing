@@ -2,5 +2,7 @@
 
 {% block body %}
     <h1>You created Group. Good job !</h1>
-    {{form_data}}
+    
+    <a href="{% url 'create_event_ingroup' group.id %}">Create Event</a>
+
 {% endblock %}

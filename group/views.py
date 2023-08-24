@@ -29,4 +29,5 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
 
         return render(self.request, 'group/profile.html', {
             'form_data': [form.cleaned_data for form in form_list],
+            'group' : instance 
         })

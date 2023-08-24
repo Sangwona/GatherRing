@@ -1,0 +1,13 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+    <h2>Create GroupEvent</h2>
+    
+    <form action="{% url 'create_event_ingroup' group_id %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Post" id ="submit_event" class="btn btn-primary">
+    </form>
+
+{% endblock %}
