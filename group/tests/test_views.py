@@ -27,7 +27,7 @@ class GroupViewTest(TestCase):
         self.client.login(username='testuser', password='testpassword')
 
         # Make a GET request to the 'group' view with the group ID
-        response = self.client.get(reverse('group', args=['1']))
+        response = self.client.get(reverse('group', str(self.group.pk)))
 
         # Check if the response status code is 200 (OK)
         self.assertEqual(response.status_code, 200)
@@ -75,7 +75,7 @@ class CreateGroupFormWizardTestCase(TestCase):
 
         response = self.client.post(reverse('create_group'), description_data)
         self.assertEqual(response.status_code, 302) # Expecting a redirect after last step
-        self.assertEqual(response['Location'], reverse('group', args=['1']))  # Check the redirection URL
+        
         
         # Check if the group was created
         self.assertEqual(Group.objects.count(), 1)
@@ -85,6 +85,8 @@ class CreateGroupFormWizardTestCase(TestCase):
         self.assertEqual(group.description, description_data['3-description'])
         self.assertEqual(group.creator, self.user)
         self.assertEqual(list(group.interests.values_list('id', flat=True)), interests_data['1-interests'])
+
+        self.assertEqual(response['Location'], reverse('group', args=[str(group.pk)]))  # Check the redirection URL
 
     def test_create_group_unauthenticated(self):
         # Attempt to access the create group page without authentication
