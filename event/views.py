@@ -34,10 +34,10 @@ def create_ingroup(request, group_id):
     if request.method == "POST":
         createGroupEventForm = CreateGroupEventForm(request.POST)
         if createGroupEventForm.is_valid():
-            gruop_event = createGroupEventForm.save(commit=False)
-            gruop_event.creator = request.user
-            gruop_event.group = Group.objects.get(pk=group_id)
-            gruop_event.save()
+            group_event = createGroupEventForm.save(commit=False)
+            group_event.creator = request.user
+            group_event.group = Group.objects.get(pk=group_id)
+            group_event.save()
 
             return render(request, "event/profile.html", {
                 'form_data': createGroupEventForm.cleaned_data

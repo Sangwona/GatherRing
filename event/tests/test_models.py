@@ -7,8 +7,7 @@ from event.models import Event, EventVisibility, Status, GroupEvent
 from main.models import JoinMode
 from group.models import Group
 
-
-class EventModelTest(TestCase):
+class BaseModelTest(TestCase):
     def setUp(self):
         User = get_user_model()
         self.creator = User.objects.create_user(
@@ -27,27 +26,8 @@ class EventModelTest(TestCase):
             'end_time': timezone.now() + timezone.timedelta(hours=2),
             'creator': self.creator
         }
-        self.group = Group.objects.create(
-            location='Sample Location',
-            name='Sample Group',
-            description='Sample Description',
-            creator=self.creator
-        )
 
-        self.group_event_data = {
-            "name": "Test Group Event",
-            "description": "A test group event",
-            "visibility": EventVisibility.PUBLIC,
-            "join_mode": JoinMode.DIRECT,
-            "status": Status.ACTIVE,
-            "capacity": 30,
-            "location": "Group Test Location",
-            "start_time": timezone.now(),
-            "end_time": timezone.now() + timezone.timedelta(hours=2),
-            "creator": self.creator,
-            "group": self.group,
-        }
-
+class EventModelTest(BaseModelTest):
     def test_event_creation(self):
         event = Event.objects.create(**self.event_data)
         self.assertEqual(Event.objects.count(), 1)
@@ -89,6 +69,30 @@ class EventModelTest(TestCase):
         # Assert that the host has been added to the event's attendees
         self.assertIn(host, event.attendees.all())
 
+class GroupEventModelTest(BaseModelTest):
+    def setUp(self):
+        super().setUp()
+        self.group = Group.objects.create(
+        location='Sample Location',
+        name='Sample Group',
+        description='Sample Description',
+        creator=self.creator
+        )
+
+        self.group_event_data = {
+            "name": "Test Group Event",
+            "description": "A test group event",
+            "visibility": EventVisibility.PUBLIC,
+            "join_mode": JoinMode.DIRECT,
+            "status": Status.ACTIVE,
+            "capacity": 30,
+            "location": "Group Test Location",
+            "start_time": timezone.now(),
+            "end_time": timezone.now() + timezone.timedelta(hours=2),
+            "creator": self.creator,
+            "group": self.group,
+        }
+    
     def test_group_event_creation(self):
         group_event = GroupEvent.objects.create(**self.group_event_data)
         self.assertEqual(GroupEvent.objects.count(), 1)

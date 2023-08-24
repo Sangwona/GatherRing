@@ -7,21 +7,13 @@ from event.forms import CreateEventForm, CreateGroupEventForm
 from main.models import JoinMode
 from group.models import Group
 
-class CreateEventFormTest(TestCase):
+class BaseFormTest(TestCase):
     def setUp(self):
         User = get_user_model()
         self.creator = User.objects.create_user(
             username='testuser',
             password='testpassword'
         )
-
-        self.group = Group.objects.create(
-            location='Sample Location',
-            name='Sample Group',
-            description='Sample Description',
-            creator=self.creator
-        )
-
         self.form_data = {
             'name': 'Test Event',
             'description': 'This is a test event',
@@ -33,7 +25,8 @@ class CreateEventFormTest(TestCase):
             'start_time': timezone.now(),
             'end_time': timezone.now() + timezone.timedelta(hours=2),
         }
-    
+
+class CreateEventFormTest(BaseFormTest):
     def test_create_event_form_valid(self):
         form = CreateEventForm(data=self.form_data)
         self.assertTrue(form.is_valid())
@@ -52,6 +45,16 @@ class CreateEventFormTest(TestCase):
         event.group = self.group
         event.save()
         self.assertEqual(GroupEvent.objects.count(), 1)
+
+class CreateEventFormTest(BaseFormTest):
+    def setUp(self):
+        super().setUp()  # Call the parent setup to set up common data
+        self.group = Group.objects.create(
+                    location='Sample Location',
+                    name='Sample Group',
+                    description='Sample Description',
+                    creator=self.creator
+                )
 
     def test_create_group_event_form_missing_required_fields(self):
         form = CreateGroupEventForm(data={})  # Empty data
