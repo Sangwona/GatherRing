@@ -1,0 +1,26 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<form action="" method="post">
+  {% csrf_token %}
+  <table>
+    {% if wizard.steps.prev %}
+    <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">Back</button>
+    {% endif %}
+    {{ wizard.management_form }}
+    {% if wizard.form.forms %}
+        {{ wizard.form.management_form }}
+        {% for form in wizard.form.forms %}
+            {{ form }}
+        {% endfor %}
+    {% else %}
+        {{ wizard.form }}
+    {% endif %}
+  </table>
+  <input id="btn-submit" type="submit" value="Next"/>
+    
+</form>
+
+
+{% endblock %}
