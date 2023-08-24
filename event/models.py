@@ -1,7 +1,8 @@
-from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from main.models import JoinMode
+from django.db import models
+from django.dispatch import receiver
 
+from main.models import JoinMode
 
 # Create your models here.
 class EventVisibility(models.TextChoices):
@@ -37,6 +38,21 @@ class Event(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    def save(self, *args, **kwargs):
+        is_new = not bool(self.pk)
+        super().save(*args, **kwargs)
+        if is_new:
+            self.hosts.add(self.creator)
+
+#Automatically add user to attendees when they are added as host
+@receiver(models.signals.m2m_changed, sender=Event.hosts.through)
+def update_attendees(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add":
+        for host_id in pk_set:
+            host = model.objects.get(pk=host_id)
+            if host not in instance.attendees.all():
+                instance.attendees.add(host)
 
 class GroupEvent(Event):
     group = models.ForeignKey('group.Group', on_delete=models.CASCADE, related_name='events')
