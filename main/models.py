@@ -9,6 +9,9 @@ class JoinMode(models.TextChoices):
 class Interest(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
+    def __str__(self) -> str:
+        return self.name
+
 class Photo(models.Model):
     uploaded_by = models.ForeignKey('user.User', on_delete=models.SET_NULL, null=True, blank= True)
     photo = models.ImageField(upload_to="photos/")
