@@ -8,6 +8,8 @@ media
 */migrations/*
 .env
 .DS_Store
+.coverage
+.coveragerc
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
