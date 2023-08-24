@@ -10,12 +10,17 @@ class UserViewsTest(TestCase):
         }
         User = get_user_model()
         self.user = User.objects.create_user(**self.user_data)
+    
+    def test_login_view_GET(self):
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'user/login.html')
 
-    def test_login_view_valid(self):
+    def test_login_view_valid_POST(self):
         response = self.client.post(reverse('login'), self.user_data)
         self.assertEqual(response.status_code, 302)  # Should redirect after successful login
     
-    def test_login_view_invalid(self):
+    def test_login_view_invalid_POST(self):
         invalid_data = self.user_data.copy()
         invalid_data['password'] = 'wrongpassword'
         response = self.client.post(reverse('login'), invalid_data)
@@ -27,7 +32,12 @@ class UserViewsTest(TestCase):
         response = self.client.get(reverse('logout'))
         self.assertEqual(response.status_code, 302)  # Should redirect after logout
 
-    def test_register_view_valid(self):
+    def test_register_view_GET(self):
+        response = self.client.get(reverse('register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'user/register.html')
+
+    def test_register_view_valid_POST(self):
         response = self.client.post(reverse('register'), {
             'username': 'newuser',
             'password1': 'newpassword123',
@@ -35,7 +45,7 @@ class UserViewsTest(TestCase):
         })
         self.assertEqual(response.status_code, 302)  # Should redirect after successful registration
 
-    def test_register_view_invalid(self):
+    def test_register_view_invalid_POST(self):
         response = self.client.post(reverse('register'), {
             'username': 'newuser',
             'password1': 'newpassword123',
