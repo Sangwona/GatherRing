@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from formtools.wizard.views import SessionWizardView
 from .forms import *
 from django.contrib.auth.decorators import login_required
@@ -7,8 +6,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 
-def group(request):
-    return HttpResponse("Hello, group!")
+def group(request, group_id):
+    group = Group.objects.get(pk=group_id)
+    return render(request, "group/profile.html", {
+        'group': group,
+        "request_exists": group.requests.filter(user=request.user).exists()
+    })
 
 class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
     login_url = '/user/login'  # Set custom login URL
@@ -27,6 +30,4 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
         for interest in form_dict['1'].cleaned_data['interests']:
             instance.interests.add(interest) 
 
-        return render(self.request, 'group/profile.html', {
-            'form_data': [form.cleaned_data for form in form_list],
-        })
+        return redirect('group', instance.id)
