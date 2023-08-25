@@ -101,3 +101,44 @@ class GroupEventViewsTest(BaseViewTest):
        
         # Check if the form has errors
         self.assertFormError(response, 'form', 'name', 'This field is required.')
+
+class EventProfileViewTest(BaseViewTest):
+    def setUp(self):
+        super().setUp()
+        self.event_data = {
+            'name':'Test Event',
+            'description':'This is a test event',
+            'visibility':EventVisibility.PUBLIC,
+            'join_mode':JoinMode.DIRECT,
+            'status':Status.ACTIVE,
+            'capacity':50,
+            'location':'Test Location',
+            'start_time':timezone.now(),
+            'end_time':timezone.now() + timezone.timedelta(hours=2),
+            'creator':self.user
+        }
+        self.event = Event.objects.create(**self.event_data)
+
+        self.group1 = Group.objects.create(
+            name="Test Group",
+            description="This is a test group",
+            location="Test Location",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+
+        self.groupevent_data = self.event_data.copy()
+        self.groupevent_data['group'] = self.group1
+        self.groupevent = GroupEvent.objects.create(**self.groupevent_data)
+
+    def test_group_event_profile_view_GET(self):
+        response = self.client.get(reverse('event_profile', args=[str(self.groupevent.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/profile.html')
+        
+    def test_event_profile_view_GET(self):
+        response = self.client.get(reverse('event_profile', args=[str(self.event.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/profile.html')
