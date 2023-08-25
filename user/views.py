@@ -1,13 +1,11 @@
-from django.shortcuts import HttpResponse, render, redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
+from django.http import Http404
 
 from .forms import RegisterForm, LoginForm
+from .models import User
 
 # Create your views here.
-
-def user(request):
-    return HttpResponse("Hello, user!")
-
 def login_view(request):
     if request.method == "POST":
         loginForm = LoginForm(data=request.POST)
@@ -42,3 +40,12 @@ def register(request):
         return render(request, "user/register.html", {
             'form': RegisterForm()
         })
+    
+def profile(request, user_id):
+    try: 
+        profile_user = User.objects.get(pk=user_id)
+        return render(request, "user/profile.html", {
+            "profile_user": profile_user
+        })
+    except User.DoesNotExist:
+        raise Http404("User does not exist")

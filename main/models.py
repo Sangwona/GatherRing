@@ -13,7 +13,7 @@ class Interest(models.Model):
         return self.name
 
 class Photo(models.Model):
-    uploaded_by = models.ForeignKey('user.User', on_delete=models.SET_NULL, null=True, blank= True)
+    uploaded_by = models.ForeignKey('user.User', on_delete=models.SET_NULL, null=True, blank= True, related_name='uploaded_photo')
     photo = models.ImageField(upload_to="photos/")
     uploaded_at = models.DateField(auto_now_add=True)
     related_event = models.ForeignKey('event.Event', on_delete=models.CASCADE, null=True, blank=True, related_name='event_photo')

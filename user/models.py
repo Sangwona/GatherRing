@@ -1,6 +1,12 @@
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 # Create your models here.
 class User(AbstractUser):
+    photo =models.ImageField(upload_to="user_profile_photos/", blank=True)
+    bio = models.TextField(max_length=500, blank=True)
+    interests = models.ManyToManyField('main.Interest', blank=True)
+    location = models.CharField(max_length=100, blank=True)
+
     def __str__(self) -> str:
         return self.username

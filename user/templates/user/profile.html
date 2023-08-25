@@ -1,0 +1,37 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="card m-2" >
+        <div class="card-body">
+            <div>
+                {% if profile_user.photo %}
+                <img src="{{ profile_user.photo.url }}" class="card-img" alt="profile photo"> 
+                {% endif %} 
+            </div>
+            <div>
+                <h5 class="card-title">{{ profile_user.username }}</h5>  
+            </div>
+            <div>
+                <p class="card-text">{{ profile_user.first_name }}</p>
+                <p class="card-text">{{ profile_user.last_name }}</p>
+            </div>
+            <div>
+                <p class="card-text">Location: {{ profile_user.location }}</p>
+                    <p class="card-text">Member Since: {{ profile_user.date_joined }}</p>
+                    <p class="card-text">Bio: {{ profile_user.bio }}</p>
+                    <p class="card-text"> Interests: 
+                        {% for interest in profile_user.interests.all %}
+                            {{ interest.name }},
+                        {% endfor %}
+                    </p>
+            </div>
+            {% if user == profile_user %}
+                <div>
+                    <a class="btn btn-secondary" href="#">Edit Profile</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
