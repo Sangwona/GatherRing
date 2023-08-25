@@ -142,3 +142,37 @@ class EventProfileViewTest(BaseViewTest):
         response = self.client.get(reverse('event_profile', args=[str(self.event.id)]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'event/profile.html')
+
+class AllEventViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        Event.objects.create(
+            name='Test Event 1',
+            description='This is a test event 1',
+            visibility=EventVisibility.PUBLIC,
+            join_mode=JoinMode.DIRECT,
+            creator=self.user,
+            capacity=50,
+            location='Test Location',
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=2)
+        )
+        Event.objects.create(
+            name='Test Event 2',
+            description='This is a test event 2',
+            visibility=EventVisibility.PUBLIC,
+            join_mode=JoinMode.DIRECT,
+            creator=self.user,
+            capacity=50,
+            location='Test Location',
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=2)
+        )
+
+    def test_all_events_view_GET(self):
+        response = self.client.get(reverse('all_events'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/all.html')
+        self.assertContains(response, 'Test Event 1')  # Check if event names are present
+        self.assertContains(response, 'Test Event 2')    
