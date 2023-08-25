@@ -1,0 +1,80 @@
+<div class="event-profilep-box">
+    <div class="container">
+        <div class="header-info">
+            {% if user.is_authenticated and user == event.creator %}
+            <button data-delete-id="{{ event.id }}" class="btn btn-danger delete-event-btn">Delete Event</button>
+            <button id="edit-btn-{{ event.id }}" class="btn m-2 btn-secondary btn-event-edit" data-edit-id="{{ event.id }}">Edit Event</button>
+                {% if event.status == 'Active' %}
+                <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel cancel" data-cancel-id="{{event.id}}" >Cancel this Event</button>
+                {% else %}
+                <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel reactive" data-cancel-id="{{event.id}}"> Reactive this Event! </button>
+                {% endif %}
+            <button class="btn btn-secondary" id="manage" data-event-id="{{ event.id }}">Manage Event</button>
+            {% endif %}
+            <h1>{{event.title}}</h1>
+            <span id="eventStatus-{{event.id}}">
+                {% if event.status == 'Active' %}
+                *** Active ***
+                {% else %}
+                CANCELED!!!!!!!
+                {% endif %}
+            </span>
+            <p>Hosted by 
+            {% for host in event.hosts.all %}
+                {% if host.profile_photo %}
+                    <img class="organizer-avatar" src="{{host.profile_photo.url}}" alt="organizer-avatar"> 
+                {% endif %}
+                    <span>{{host.username}}</span>
+            {% endfor %}
+            </p>
+            <div>
+                <span>Author : {{event.creator}} </span>
+            </div>
+            
+            {% if user.is_authenticated and user not in event.attendees.all %}
+                {% if event.join_mode == "Request" %}
+                    {% if request_exists %}
+                    <button class="request_join join-btn request" data-join-event-id="{{event.id}}">Witdraw join Request</button>
+                    {% else %}
+                    <button class="request_join join-btn request" data-join-event-id="{{event.id}}">Request to join</button>
+                    {% endif %}
+                {% else %}
+                <button id="join-event-btn-{{event.id}}" class="join-event-btn join" data-join-event-id="{{event.id}}">Join this event</button>
+                {% endif %}
+            {% else %}
+                {% if user.is_authenticated and user != event.author %}
+                <button id="join-event-btn-{{event.id}}" class="join-event-btn leave" data-join-event-id="{{event.id}}">Leave this event</button>
+                {% endif %}
+            {% endif %}
+
+        </div>
+
+        <div class="event-details">
+            <div class="row">
+                {% if event.cover_photo %}
+                    <img class="photo-event-profile" src="{{event.cover_photo.url}}" alt="profile photo">
+                {% endif %}
+                <div class="col-12 col-md-4">
+                    <p><strong>Date:</strong><br>{{event.start_time|date:"l, F j"}}</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <p><strong>Time:</strong><br>{{ event.start_time|time:"h:i A" }} to {{ event.end_time|time:"h:i A" }} PST</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <p><strong>Location:</strong><br>{{event.location}}</p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <span data-members-id="{{event.id}}" class="btn-info view-members-btn"> {{event.attendees.count}} members </span>
+                </div>
+                <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
+                    <div id="members-popup" style="display: none;">
+                    <ul id="members-list">
+                    </ul>
+                </div>
+
+                <div class="event-description">
+                    Description: {{ event.description }}
+                </div>
+            </div>
+        </div>
+    </div>
