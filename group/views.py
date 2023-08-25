@@ -31,3 +31,8 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
             instance.interests.add(interest) 
 
         return redirect('group_profile', instance.id)
+
+def all(request):
+    return render(request, "group/all.html", {
+        'groups': Group.objects.all(),
+    })

@@ -6,7 +6,7 @@ from group.models import Group
 from main.models import Interest
 from user.models import User
 
-class GroupViewTest(TestCase):
+class ProfileGroupViewTest(TestCase):
     def setUp(self):
         # Create a user
         User = get_user_model()
@@ -23,7 +23,7 @@ class GroupViewTest(TestCase):
             creator=self.user,
         )
 
-    def test_group_view(self):
+    def test_group_profile_view(self):
         self.client.login(username='testuser', password='testpassword')
 
         # Make a GET request to the 'group' view with the group ID
@@ -79,3 +79,61 @@ class CreateGroupFormWizardTestCase(TestCase):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/user/login?next=/group/create')
+
+class AllGroupViewTest(TestCase):
+    def setUp(self):
+        # Create a user
+        User = get_user_model()
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+
+        # Create groups
+        self.group1 = Group.objects.create(
+            name="Test Group",
+            description="This is a test group",
+            location="Test Location",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+
+        self.group2 = Group.objects.create(
+            name="Test Group2",
+            description="This is a test group2",
+            location="Test Location2",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+
+    def test_all_view_with_groups(self):
+        # Test when there are groups in the database
+        response = self.client.get(reverse('all_groups'))
+
+        # Check if the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the correct template is used
+        self.assertTemplateUsed(response, 'group/all.html')  
+
+        # Check if groups are passed to the context
+        self.assertQuerysetEqual(
+            response.context['groups'],
+            [self.group1, self.group2],
+            ordered=False  # The order of groups doesn't matter
+        )
+
+    def test_all_view_without_groups(self):
+        # Test when there are no groups in the database
+        Group.objects.all().delete()  # Delete all groups
+        response = self.client.get(reverse('all_groups'))
+
+        # Check if the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the correct template is used
+        self.assertTemplateUsed(response, 'group/all.html')  
+
+        # Check if an empty queryset is passed to the context
+        self.assertQuerysetEqual(response.context['groups'], [])

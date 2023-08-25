@@ -1,0 +1,24 @@
+<div class="list-group">
+    {% for group in groups %}
+    <a href="{% url 'group_profile' group.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="col-3 list-photo">
+            {% if group.cover_photo %}
+                <img src="{{ group.cover_photo.url }}" class="card-img" alt="group_cover_image"> 
+            {% endif %}                   
+        </div>
+        <div class="col-9">
+            <div class="card-body">
+                <h5 class="card-title">{{ group.name }}</h5>
+                <p class="card-text">{{ group.description | truncatewords:50 }}</p>
+                <div class="d-flex">
+                    <span class="card-text m-2"><small class="text-muted">Location: {{ group.location }}</small></span>
+                    <span class="card-text m-2"><small class="text-muted">Join Mode: {{ group.join_mode }}</small></span>
+                    <span class="card-text m-2"><small class="text-muted">Members: {{ group.members.count }}</small></span>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div>No Groups</div>
+    {% endfor %}
+</div>
