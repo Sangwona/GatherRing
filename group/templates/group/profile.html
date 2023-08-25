@@ -1,8 +1,52 @@
 {% extends "main/layout.html" %}
 
 {% block body %}
-    <h1>You created Group. Good job !</h1>
-    
-    <a href="{% url 'create_event_ingroup' group.id %}">Create Event</a>
+    {% if group.cover_photo %}
+        <img src="{{ group.cover_photo.url }}" alt="group photo">
+    {% endif %}
 
+    <h1>{{ group.name }}</h1>
+    <p>Description: {{ group.description }}</p>
+    <p>Location: {{ group.location }}</p>
+    <p>Visibility: {{ group.visibility }}</p>
+    <p>Join Mode: {{ group.join_mode }}</p>
+    <p>Capacity: {{ group.capacity }}</p>
+    <p>Created At: {{ group.created_at }}</p>
+    <p>Created By: {{ group.creator }}</p>
+    <p> Admins: 
+        {% for admin in group.admins.all %}
+            {{ admin.username }},
+        {% endfor %}
+    </p>
+    <p>Members: {{ group.members.all.count }}</p>
+    <p> Interests: 
+        {% for interest in group.interests.all %}
+            {{ interest.name }},
+        {% endfor %}
+    </p>
+    <div class="d-flex justify-content-center">
+        {% if user.is_authenticated %}
+            {% if user in group.members.all %}
+                <a class="btn btn-secondary m-2" href="#">Create Event</a>
+            {% endif %}
+            {% if user == group.creator %}
+                <a class="btn btn-danger m-2" href="#">Delete Group</a>
+            {% endif %}
+            {% if user in group.admins.all %}
+                <a class="btn btn-secondary m-2" href="#">Manage Group</a>
+                <a class="btn btn-secondary m-2" href="#">Edit Group</a>
+            {% elif user in group.members.all %}
+                <a class="btn btn-secondary m-2" href="#">Create Event</a>
+                <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Leave Group</button>
+            {% elif group.join_mode == "REQUEST"%}
+                {% if request_exists %}
+                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}">Withdraw Request</button>
+                {% else %}
+                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}">Request to Join</button>
+                {% endif %}
+            {% else %}
+                <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Join Group</button>
+            {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}
