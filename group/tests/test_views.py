@@ -69,4 +69,13 @@ class CreateGroupFormWizardTestCase(TestCase):
         self.assertEqual(group.description, form_steps_data[3][1]['3-description'])
         self.assertEqual(group.creator, self.user)
         self.assertEqual(list(group.interests.values_list('id', flat=True)), form_steps_data[1][1]['1-interests'])
-        self.assertRedirects(response, reverse('group_profile', args=[str(group.pk)])) # Check the redirection URL
+
+        self.assertEqual(response['Location'], reverse('group_profile', args=[str(group.pk)]))  # Check the redirection URL
+
+    def test_create_group_unauthenticated(self):
+        # Attempt to access the create group page without authentication
+        response = self.client.get(reverse('create_group'))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login?next=/group/create')
