@@ -40,7 +40,7 @@ def create_ingroup(request, group_id):
             group_event.group = Group.objects.get(pk=group_id)
             group_event.save()
 
-            return group_event_profile(request, group_event.id)
+            return event_profile(request, group_event.id)
 
         else:
             return render(request, "event/create_ingroup.html", {
@@ -60,14 +60,6 @@ def event_profile(request, event_id):
     return render(request, "event/profile.html", {
         "event" : event,
         "request_exists" : event.requests.filter(user=request.user.id).exists()
-    })
-
-def group_event_profile(request, group_event_id):
-    groupEvent = GroupEvent.objects.get(pk=group_event_id)
-    
-    return render(request, "event/profile.html", {
-        "event" : groupEvent,
-        "request_exists" : groupEvent.requests.filter(user=request.user.id).exists()
     })
 
 def all(request):

@@ -105,27 +105,20 @@ class GroupEventViewsTest(BaseViewTest):
 class EventProfileViewTest(BaseViewTest):
     def setUp(self):
         super().setUp()
-        self.event = Event.objects.create(
-            name='Test Event',
-            description='This is a test event',
-            visibility=EventVisibility.PUBLIC,
-            join_mode=JoinMode.DIRECT,
-            status=Status.ACTIVE,
-            capacity=50,
-            location='Test Location',
-            start_time=timezone.now(),
-            end_time=timezone.now() + timezone.timedelta(hours=2),
-            creator=self.user
-        )
+        self.event_data = {
+            'name':'Test Event',
+            'description':'This is a test event',
+            'visibility':EventVisibility.PUBLIC,
+            'join_mode':JoinMode.DIRECT,
+            'status':Status.ACTIVE,
+            'capacity':50,
+            'location':'Test Location',
+            'start_time':timezone.now(),
+            'end_time':timezone.now() + timezone.timedelta(hours=2),
+            'creator':self.user
+        }
+        self.event = Event.objects.create(**self.event_data)
 
-    def test_event_profile_view_GET(self):
-        response = self.client.get(reverse('event_profile', args=[str(self.event.id)]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'event/profile.html')
-
-class GroupEventProfileViewTest(BaseViewTest):
-    def setUp(self):
-        super().setUp()
         self.group1 = Group.objects.create(
             name="Test Group",
             description="This is a test group",
@@ -136,22 +129,16 @@ class GroupEventProfileViewTest(BaseViewTest):
             creator=self.user,
         )
 
-        self.groupevent = GroupEvent.objects.create(
-            name='Test Event',
-            description='This is a test event',
-            visibility=EventVisibility.PUBLIC,
-            join_mode=JoinMode.DIRECT,
-            status=Status.ACTIVE,
-            capacity=50,
-            location='Test Location',
-            start_time=timezone.now(),
-            end_time=timezone.now() + timezone.timedelta(hours=2),
-            creator=self.user,
-            group = self.group1
-        )
+        self.groupevent_data = self.event_data.copy()
+        self.groupevent_data['group'] = self.group1
+        self.groupevent = GroupEvent.objects.create(**self.groupevent_data)
 
     def test_group_event_profile_view_GET(self):
-        response = self.client.get(reverse('group_event_profile', args=[str(self.groupevent.id)]))
+        response = self.client.get(reverse('event_profile', args=[str(self.groupevent.id)]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'event/profile.html')
         
+    def test_event_profile_view_GET(self):
+        response = self.client.get(reverse('event_profile', args=[str(self.event.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/profile.html')
