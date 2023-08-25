@@ -2,7 +2,6 @@
 
 {% block body %}
 
-<h1>Event Created</h1>
-{{form_data}}
+{% include "event/profile_template.html" with event=event %}
 
 {% endblock %}

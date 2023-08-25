@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import CreateEventForm, CreateGroupEventForm
 from django.contrib.auth.decorators import login_required
+from .models import Event
 from group.models import Group
 
 # Create your views here.
@@ -16,10 +17,7 @@ def create(request):
             event = createEventForm.save(commit=False)
             event.creator = request.user
             event.save()
-
-            return render(request, "event/profile.html", {
-                'form_data': createEventForm.cleaned_data
-            })
+            return event_profile(request, event.id)
         else:
             return render(request, "event/create.html", {
                 'form': createEventForm
@@ -39,9 +37,7 @@ def create_ingroup(request, group_id):
             group_event.group = Group.objects.get(pk=group_id)
             group_event.save()
 
-            return render(request, "event/profile.html", {
-                'form_data': createGroupEventForm.cleaned_data
-            })
+            return event_profile(request, group_event.id)
 
         else:
             return render(request, "event/create_ingroup.html", {
@@ -54,3 +50,11 @@ def create_ingroup(request, group_id):
             'form': CreateGroupEventForm(),
             'group_id' : group_id
         }) 
+    
+def event_profile(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    
+    return render(request, "event/profile.html", {
+        "event" : event,
+        "request_exists" : event.requests.filter(user=request.user.id).exists()
+    })
