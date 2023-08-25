@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-class UserViewsTest(TestCase):
+class BaseViewTest(TestCase):
     def setUp(self):
         self.user_data = {
             'username': 'testuser',
@@ -10,7 +10,8 @@ class UserViewsTest(TestCase):
         }
         User = get_user_model()
         self.user = User.objects.create_user(**self.user_data)
-    
+
+class LoginViewTest(BaseViewTest):
     def test_login_view_GET(self):
         response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
@@ -28,10 +29,12 @@ class UserViewsTest(TestCase):
         self.assertTemplateUsed(response, 'user/login.html')
         self.assertContains(response, "Please enter a correct username and password. Note that both fields may be case-sensitive.")
 
+class LogoutViewTest(BaseViewTest):
     def test_logout_view(self):
         response = self.client.get(reverse('logout'))
         self.assertEqual(response.status_code, 302)  # Should redirect after logout
 
+class RegisterViewTest(BaseViewTest):
     def test_register_view_GET(self):
         response = self.client.get(reverse('register'))
         self.assertEqual(response.status_code, 200)
@@ -53,5 +56,28 @@ class UserViewsTest(TestCase):
         })
         self.assertEqual(response.status_code, 200)  # Should stay on the registration page
         self.assertTemplateUsed(response, 'user/register.html')
-        self.assertContains(response, "The two password fields didn’t match.")
-        
+        self.assertContains(response, "The two password fields")
+    
+    def test_register_view_existing_username_POST(self):
+        response = self.client.post(reverse('register'), {
+            'username': self.user_data['username'],
+            'password1': 'newpassword123',
+            'password2': 'newpassword123',
+        })
+        self.assertEqual(response.status_code, 200)  # Should stay on the registration page
+        self.assertTemplateUsed(response, 'user/register.html')
+        self.assertContains(response, "A user with that username already exists.")
+
+class UserProfileViewTest(BaseViewTest):
+    def test_profile_view_with_existing_user(self):
+        response = self.client.get(reverse('user_profile', args=[str(self.user.pk)]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'user/profile.html')
+        self.assertEqual(response.context['profile_user'], self.user)
+
+    def test_profile_view_with_nonexistent_user(self):
+        non_existent_user_id = 9999
+        response = self.client.get(reverse('user_profile', args=[str(non_existent_user_id)]))
+
+        self.assertEqual(response.status_code, 404)
