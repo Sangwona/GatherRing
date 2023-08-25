@@ -45,7 +45,8 @@ def create_ingroup(request, group_id):
 
         else:
             return render(request, "event/create_ingroup.html", {
-                'form': createGroupEventForm
+                'form': createGroupEventForm,
+                'group_id' : group_id
             })        
 
     else:
