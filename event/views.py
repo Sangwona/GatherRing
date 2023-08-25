@@ -9,10 +9,6 @@ from .models import Event, GroupEvent
 from group.models import Group
 
 # Create your views here.
-
-def event(request):
-    return HttpResponse("Hello, event!")
-
 def create(request):
     if request.method == "POST":
         createEventForm = CreateEventForm(request.POST)

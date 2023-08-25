@@ -1,0 +1,53 @@
+<div class="list-group">
+    {% for event in events %}
+    <a href="{% url 'event_profile' event.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="col-3 list-photo">
+            {% if event.cover_photo %}
+                <img src="{{ event.cover_photo.url }}" class="card-img" alt="event_cover_image"> 
+            {% endif %}                   
+        </div>
+        <div class="col-9">
+            <div class="card-body">
+                <h5 class="card-title">{{ event.name }}</h5>
+                <p class="card-text">{{ event.description | truncatewords:50 }}</p>
+                <div class="d-flex">
+                    <span class="card-text m-2"><small class="text-muted">Location: {{ event.location }}</small></span>
+                    <span class="card-text m-2"><small class="text-muted">Join Mode: {{ event.join_mode }}</small></span>
+                    <span class="card-text m-2"><small class="text-muted">Members: {{ event.attendees.count }}</small></span>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class=""> - There is no events now.</div>
+    {% endfor %}
+
+    {% if is_paginated %}
+    <nav class="pagination">
+        {% if events.has_previous %}
+      <a href="?page=1">&laquo;</a> 
+      <a href="?page={{ events.previous_page_number }}">&lsaquo;</a>
+        {% else %}
+      <a class="disabled">&laquo;</a>
+      <a class="disabled">&lsaquo;</a>
+        {% endif %}
+    
+        {% for num in events.paginator.page_range %}
+            {% if events.number == num %}
+            <a class="active">{{ num }}</a>
+            {% elif num > events.number|add:-3 and num < events.number|add:3 %}
+            <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+    
+        {% if events.has_next %}
+      <a href="?page={{ events.next_page_number }}">&rsaquo;</a>
+      <a href="?page={{ events.paginator.num_pages }}">&raquo;</a>
+        {% else %}
+      <a class="disabled">&rsaquo;</a>
+      <a class="disabled">&raquo;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</div>  
+
