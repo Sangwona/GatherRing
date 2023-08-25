@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .forms import CreateEventForm, CreateGroupEventForm
 from django.contrib.auth.decorators import login_required
 from .models import Event, GroupEvent
+
 from group.models import Group
 
 # Create your views here.
