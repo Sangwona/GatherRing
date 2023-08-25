@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import CreateEventForm, CreateGroupEventForm
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
 from .models import Event, GroupEvent
 
 from group.models import Group
@@ -54,7 +56,7 @@ def create_ingroup(request, group_id):
     
 def event_profile(request, event_id):
     event = Event.objects.get(pk=event_id)
-    
+
     return render(request, "event/profile.html", {
         "event" : event,
         "request_exists" : event.requests.filter(user=request.user.id).exists()
@@ -66,4 +68,15 @@ def group_event_profile(request, group_event_id):
     return render(request, "event/profile.html", {
         "event" : groupEvent,
         "request_exists" : groupEvent.requests.filter(user=request.user.id).exists()
+    })
+
+def all(request):
+    event = Event.objects.all().order_by("-created_at")
+    paginator = Paginator(event, 10) # Show 10 posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "event/all.html", {
+        'events': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
     })
