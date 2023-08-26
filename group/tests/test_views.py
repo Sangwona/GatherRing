@@ -5,6 +5,7 @@ from django.urls import reverse
 from group.models import Group
 from main.models import Interest
 from user.models import User
+from group.forms import *
 
 class ProfileGroupViewTest(TestCase):
     def setUp(self):
@@ -79,6 +80,52 @@ class CreateGroupFormWizardTestCase(TestCase):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/user/login?next=/group/create')
+
+class GroupEditTestCase(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.group = Group.objects.create(
+            name="Test Group",
+            description="This is a test group",
+            location="Test Location",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+        
+    def test_edit_group_authenticated(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/edit.html')
+        self.assertIsInstance(response.context['form'], EditGroupForm)
+        
+    def test_edit_group_post_valid_data(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.post(reverse('edit_group', args=[str(self.group.id)]), data = {
+            'name': 'New Group Name',
+            'description': 'new_description',
+            'location': 'new_location',
+            'visibility' : "Public",
+            'join_mode':"Direct",
+            'capacity':25,
+            'admins': [self.user.pk]
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('group_profile', args=[str(self.group.id)]))
+        self.group.refresh_from_db()
+        self.assertEqual(self.group.name, 'New Group Name')
+
+    def test_edit_group_post_invalid_data(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.post(reverse('edit_group', args=[self.group.id]), data = {})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/edit.html')
+        self.assertIn('form', response.context)
+        self.assertIsInstance(response.context['form'], EditGroupForm)
 
 class AllGroupViewTest(TestCase):
     def setUp(self):

@@ -34,7 +34,7 @@
             {% endif %}
             {% if user in group.admins.all %}
                 <a class="btn btn-secondary m-2" href="#">Manage Group</a>
-                <a class="btn btn-secondary m-2" href="#">Edit Group</a>
+                <a class="btn btn-secondary m-2" href="{% url 'edit_group' group.id %}">Edit Group</a>
             {% elif user in group.members.all %}
                 <a class="btn btn-secondary m-2" href="#">Create Event</a>
                 <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Leave Group</button>
