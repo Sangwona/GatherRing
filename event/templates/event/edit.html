@@ -1,0 +1,15 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+<form action="{% url 'edit_event' event_id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}           
+    <div class="text-center">
+        <input type="submit" class="btn btn-primary" value="Save"/>
+        <a class="btn btn-danger" href="{% url 'event_profile' event_id %}">Cancel</a>
+    </div>
+</form>
+
+
+{% endblock %}

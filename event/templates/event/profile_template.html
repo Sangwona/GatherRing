@@ -3,7 +3,7 @@
         <div class="header-info">
             {% if user.is_authenticated and user == event.creator %}
             <button data-delete-id="{{ event.id }}" class="btn btn-danger delete-event-btn">Delete Event</button>
-            <button id="edit-btn-{{ event.id }}" class="btn m-2 btn-secondary btn-event-edit" data-edit-id="{{ event.id }}">Edit Event</button>
+            <a href="{% url 'edit_event' event.id %}" id="edit-btn-{{ event.id }}" class="btn m-2 btn-secondary btn-event-edit" data-edit-id="{{ event.id }}">Edit Event</a>
                 {% if event.status == 'Active' %}
                 <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel cancel" data-cancel-id="{{event.id}}" >Cancel this Event</button>
                 {% else %}
@@ -11,7 +11,7 @@
                 {% endif %}
             <button class="btn btn-secondary" id="manage" data-event-id="{{ event.id }}">Manage Event</button>
             {% endif %}
-            <h1>{{event.title}}</h1>
+            <h1>{{event.name}}</h1>
             <span id="eventStatus-{{event.id}}">
                 {% if event.status == 'Active' %}
                 *** Active ***
@@ -42,7 +42,7 @@
                 <button id="join-event-btn-{{event.id}}" class="join-event-btn join" data-join-event-id="{{event.id}}">Join this event</button>
                 {% endif %}
             {% else %}
-                {% if user.is_authenticated and user != event.author %}
+                {% if user.is_authenticated and user != event.creator %}
                 <button id="join-event-btn-{{event.id}}" class="join-event-btn leave" data-join-event-id="{{event.id}}">Leave this event</button>
                 {% endif %}
             {% endif %}

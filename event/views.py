@@ -1,10 +1,9 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .forms import CreateEventForm, CreateGroupEventForm
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
 
-from .models import Event, GroupEvent
+from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
+from .models import Event
 
 from group.models import Group
 
@@ -49,6 +48,21 @@ def create_ingroup(request, group_id):
             'form': CreateGroupEventForm(),
             'group_id' : group_id
         }) 
+    
+def edit(request, event_id):
+    event = Event.objects.get(pk=event_id)
+
+    if request.method == "POST":
+        form = EditEventForm(request.POST, request.FILES, instance=event)
+        if form.is_valid():
+            form.save()
+            return event_profile(request, event_id)
+    else:
+        form = EditEventForm(instance=event)
+    return render(request, "event/edit.html", {
+        "form": form,
+        "event_id": event_id
+    })
     
 def event_profile(request, event_id):
     event = Event.objects.get(pk=event_id)
