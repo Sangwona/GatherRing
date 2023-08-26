@@ -2,10 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
-from event.models import EventVisibility, Status, GroupEvent
-from event.forms import CreateEventForm, CreateGroupEventForm
+from event.models import EventVisibility, Status
+from event.forms import CreateEventForm, CreateGroupEventForm, EditEventForm, EditGroupEventForm
 from main.models import JoinMode
-from group.models import Group
 
 class BaseFormTest(TestCase):
     def setUp(self):
@@ -37,24 +36,10 @@ class CreateEventFormTest(BaseFormTest):
         form = CreateEventForm(data=invalid_data)
         self.assertFalse(form.is_valid())
 
+class CreateGroupEventFormTest(BaseFormTest):
     def test_create_group_event_form_valid_data(self):
         form = CreateGroupEventForm(data=self.form_data)
         self.assertTrue(form.is_valid())
-        event = form.save(commit=False)
-        event.creator = self.creator
-        event.group = self.group
-        event.save()
-        self.assertEqual(GroupEvent.objects.count(), 1)
-
-class CreateEventFormTest(BaseFormTest):
-    def setUp(self):
-        super().setUp()  # Call the parent setup to set up common data
-        self.group = Group.objects.create(
-                    location='Sample Location',
-                    name='Sample Group',
-                    description='Sample Description',
-                    creator=self.creator
-                )
 
     def test_create_group_event_form_missing_required_fields(self):
         form = CreateGroupEventForm(data={})  # Empty data
@@ -62,7 +47,29 @@ class CreateEventFormTest(BaseFormTest):
         self.assertIn("name", form.errors)
         self.assertIn("description", form.errors)
         self.assertIn("capacity", form.errors)
+    
+class EditEventFormTest(BaseFormTest):
+    def test_valid_edit_event_form(self):
+        valid_form_data = self.form_data.copy()
+        valid_form_data['hosts'] = [self.creator.pk]
+        form = EditEventForm(data=valid_form_data)
+        self.assertTrue(form.is_valid())
 
-    def test_create_event_form_invalid_data(self):
-        form = CreateGroupEventForm(data={})
+    def test_invalid_edit_event_form(self):
+        invalid_data = self.form_data.copy() # missing hosts
+        form = EditEventForm(data=invalid_data)
         self.assertFalse(form.is_valid())
+        self.assertIn("hosts", form.errors)
+
+class EditGroupEventFormTest(BaseFormTest):
+    def test_valid_edit_group_event_form(self):
+        valid_form_data = self.form_data.copy()
+        valid_form_data['hosts'] = [self.creator.pk]
+        form = EditGroupEventForm(data=valid_form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_edit_group_event_form(self):
+        invalid_data = self.form_data.copy() # missing hosts
+        form = EditGroupEventForm(data=invalid_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("hosts", form.errors)

@@ -26,7 +26,7 @@ class BaseViewTest(TestCase):
             'end_time': timezone.now() + timezone.timedelta(hours=2),
         }
 
-class EventViewsTest(BaseViewTest):
+class CreateEventViewTest(BaseViewTest):
     def test_create_event_view_GET(self):
         # Test the create event view with a GET request
         response = self.client.get(reverse('create_event'))
@@ -57,7 +57,7 @@ class EventViewsTest(BaseViewTest):
         # Check if the form has errors
         self.assertFormError(response, 'form', 'name', 'This field is required.')
 
-class GroupEventViewsTest(BaseViewTest):
+class CreateGroupEventViewTest(BaseViewTest):
     def setUp(self):
         super().setUp()  # Call the parent setup to set up common data
         self.group = Group.objects.create(
@@ -176,3 +176,99 @@ class AllEventViewTest(TestCase):
         self.assertTemplateUsed(response, 'event/all.html')
         self.assertContains(response, 'Test Event 1')  # Check if event names are present
         self.assertContains(response, 'Test Event 2')    
+
+class EditEventViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.form_data = {
+            'name': 'Test Event',
+            'description': 'This is a test event',
+            'visibility': EventVisibility.PUBLIC,
+            'join_mode': JoinMode.DIRECT,
+            'status': Status.ACTIVE,
+            'capacity': 50,
+            'location': 'Test Location',
+            'start_time': timezone.now(),
+            'end_time': timezone.now() + timezone.timedelta(hours=2),
+            'creator': self.user,
+        }
+        self.event = Event.objects.create(**self.form_data)
+        
+    def test_edit_event_view_GET(self):
+        response = self.client.get(reverse('edit_event', args=[str(self.event.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/edit.html')
+
+    def test_edit_event_view_valid_POST(self):
+        updated_data = self.form_data.copy()
+        updated_data['hosts'] = [self.user.pk]
+        updated_data['name'] = 'Updated Name'
+        response = self.client.post(reverse('edit_event', args=[str(self.event.id)]), updated_data)
+        self.assertEqual(response.status_code, 200)  # Successful form submission should return a 200
+
+        #check if the event was updated
+        updated_event = Event.objects.get(pk=self.event.id)
+        self.assertEqual(updated_event.name, 'Updated Name')
+
+    def test_edit_event_view_invalid_POST(self):
+        invalid_data = self.form_data.copy() # missing hosts
+        response = self.client.post(reverse('edit_event', args=[str(self.event.id)]), invalid_data)
+        self.assertEqual(response.status_code, 200)
+        #should render the form with errors
+        self.assertTemplateUsed(response, 'event/edit.html')
+        # Check if the form has errors
+        self.assertFormError(response, 'form', 'hosts', 'This field is required.')
+
+class EditGroupEventViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+        self.group = Group.objects.create(
+            location='Sample Location',
+            name='Sample Group',
+            description='Sample Description',
+            creator=self.user
+        )
+        self.form_data = {
+            'name': 'Test Event',
+            'description': 'This is a test event',
+            'visibility': EventVisibility.PUBLIC,
+            'join_mode': JoinMode.DIRECT,
+            'status': Status.ACTIVE,
+            'capacity': 50,
+            'location': 'Test Location',
+            'start_time': timezone.now(),
+            'end_time': timezone.now() + timezone.timedelta(hours=2),
+            'creator': self.user,
+            'group' : self.group  
+        }
+        self.group_event = GroupEvent.objects.create(**self.form_data)
+        
+    def test_edit_group_event_view_GET(self):
+        response = self.client.get(reverse('edit_event', args=[str(self.group_event.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/edit.html')
+
+    def test_edit_group_event_view_valid_POST(self):
+        updated_data = self.form_data.copy()
+        updated_data['hosts'] = [self.user.pk]
+        updated_data['name'] = 'Updated Name'
+        response = self.client.post(reverse('edit_event', args=[str(self.group_event.id)]), updated_data)
+        self.assertEqual(response.status_code, 200)  # Successful form submission should return a 200
+        
+        #check if the event was updated
+        updated_event = GroupEvent.objects.get(pk=self.group_event.id)
+        self.assertEqual(updated_event.name, 'Updated Name')
+
+    def test_edit_group_event_view_invalid_POST(self):
+        invalid_data = self.form_data.copy() # missing hosts
+        response = self.client.post(reverse('edit_event', args=[str(self.group_event.id)]), invalid_data)
+        self.assertEqual(response.status_code, 200)
+        #should render the form with errors
+        self.assertTemplateUsed(response, 'event/edit.html')
+        # Check if the form has errors
+        self.assertFormError(response, 'form', 'hosts', 'This field is required.')
