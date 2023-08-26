@@ -1,0 +1,13 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+<form method="POST" action="{% url 'edit_group' group_id %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div>
+    <input type="submit" value="Save" id ="save_groupEdit" class="btn btn-primary">
+    </div>
+</form>
+
+{% endblock %}

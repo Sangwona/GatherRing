@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from formtools.wizard.views import SessionWizardView
 from .forms import *
 from django.contrib.auth.decorators import login_required
@@ -31,6 +31,24 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
             instance.interests.add(interest) 
 
         return redirect('group_profile', instance.id)
+
+@login_required
+def edit(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    
+    if (request.method == "POST"):
+        editGroupForm = EditGroupForm(request.POST, instance=group)
+        if editGroupForm.is_valid():
+            editGroupForm.save()
+            return redirect("group_profile", group_id=group_id)
+        
+    else:
+        editGroupForm = EditGroupForm(instance=group)
+    
+    return render(request, "group/edit.html", {
+        "form": editGroupForm,
+        "group_id": group_id
+    })
 
 def all(request):
     return render(request, "group/all.html", {
