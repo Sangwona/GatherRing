@@ -42,7 +42,7 @@ def edit(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     
     if (request.method == "POST"):
-        editGroupForm = EditGroupForm(request.POST, instance=group)
+        editGroupForm = EditGroupForm(request.POST, request.FILES, instance=group)
         if editGroupForm.is_valid():
             editGroupForm.save()
             return redirect("group_profile", group_id=group_id)
