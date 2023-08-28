@@ -67,9 +67,14 @@ def edit(request, event_id):
 def event_profile(request, event_id):
     event = Event.objects.get(pk=event_id)
 
+    if request.user.is_authenticated:
+        request_exists = event.requests.filter(user=request.user.id).exists()
+    else:
+        request_exists = False
+
     return render(request, "event/profile.html", {
         "event" : event,
-        "request_exists" : event.requests.filter(user=request.user.id).exists()
+        "request_exists" : request_exists
     })
 
 def all(request):

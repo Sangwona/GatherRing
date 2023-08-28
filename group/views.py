@@ -8,9 +8,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 def profile(request, group_id):
     group = Group.objects.get(pk=group_id)
+    if request.user.is_authenticated:
+        request_exists = group.requests.filter(user=request.user).exists()
+    else:
+        request_exists = False
+
     return render(request, "group/profile.html", {
         'group': group,
-        'request_exists': group.requests.filter(user=request.user).exists()
+        'request_exists': request_exists
     })
 
 class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
