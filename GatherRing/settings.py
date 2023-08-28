@@ -117,19 +117,27 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+#File Storage in S3
 AWS_STORAGE_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
 AWS_S3_REGION_NAME = os.environ['S3_REGION_NAME']
 AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY']
 AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
 AWS_S3_CUSTOM_DOMAIN = os.environ['S3_CUSTOM_DOMAIN']
 
-# Tell the staticfiles app to use S3Boto3 storage when writing the collected static files 
-# (when you run `collectstatic`).
+# Static files (Project files: CSS, JavaScript, Images)
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-STATIC_URL = 'static/'
+AWS_LOCATION = 'static/' # Define the directory within the S3 bucket where static files will be stored
+
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}'
+
+# Media files (files uploaded by users, eg. Photos)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_MEDIA_LOCATION = 'media/' # Define the directory within the S3 bucket where media files will be stored
+
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_MEDIA_LOCATION}'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

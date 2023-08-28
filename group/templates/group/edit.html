@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<form method="POST" action="{% url 'edit_group' group_id %}">
+<form method="POST" action="{% url 'edit_group' group_id %}" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <div>
