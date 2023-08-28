@@ -123,20 +123,18 @@ AWS_S3_REGION_NAME = os.environ['S3_REGION_NAME']
 AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY']
 AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
 AWS_S3_CUSTOM_DOMAIN = os.environ['S3_CUSTOM_DOMAIN']
+AWS_DEFAULT_ACL = None
 
 # Static files (Project files: CSS, JavaScript, Images)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_LOCATION = 'static/' # Define the directory within the S3 bucket where static files will be stored
-
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}'
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATIC_LOCATION = 'static'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+STATICFILES_STORAGE = 'GatherRing.storage_backends.StaticStorage'
 
 # Media files (files uploaded by users, eg. Photos)
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_MEDIA_LOCATION = 'media/' # Define the directory within the S3 bucket where media files will be stored
-
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_MEDIA_LOCATION}'
+PUBLIC_MEDIA_LOCATION = 'media'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'GatherRing.storage_backends.PublicMediaStorage'
 
 
 # Default primary key field type
