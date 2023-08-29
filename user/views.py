@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from django.http import Http404
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, EditUserForm
 from .models import User
 
 # Create your views here.
@@ -49,3 +53,21 @@ def profile(request, user_id):
         })
     except User.DoesNotExist:
         raise Http404("User does not exist")
+
+@login_required
+def edit(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    
+    if (request.method == "POST"):
+        editUserForm = EditUserForm(request.POST, request.FILES, instance=user)
+        if editUserForm.is_valid():
+            editUserForm.save()
+            return redirect("user_profile", user_id=user_id)
+        
+    else:
+        editUserForm = EditUserForm(instance=user)
+    
+    return render(request, "user/edit.html", {
+        "form": editUserForm,
+        "user_id": user_id
+    })

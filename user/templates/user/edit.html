@@ -1,0 +1,11 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+<form method="POST" action="{% url 'edit_profile' user_id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save" id ="save_userEdit" class="btn btn-primary">
+</form>
+
+{% endblock %}
