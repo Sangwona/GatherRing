@@ -84,25 +84,26 @@ class UserProfileViewTest(BaseViewTest):
         self.assertEqual(response.status_code, 404)
 
 class EditViewTestCase(BaseViewTest):
+    def setUp(self):
+        super().setUp()
+        self.edit_url = reverse('edit_profile', args=[self.user.id])
+
     def test_edit_view_authenticated(self):
         self.client.login(username='testuser', password='testpassword123')
-        edit_url = reverse('edit_profile', args=[self.user.id])
-        response = self.client.get(edit_url)
+        response = self.client.get(self.edit_url)
 
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context['form'], EditUserForm)
 
     def test_edit_view_unauthenticated(self):
-        edit_url = reverse('edit_profile', args=[self.user.id])
-        response = self.client.get(edit_url)
+        response = self.client.get(self.edit_url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('login') + f'?next={edit_url}')
+        self.assertRedirects(response, reverse('login') + f'?next={self.edit_url}')
 
     def test_edit_view_post_valid_data(self):
         self.client.login(username='testuser', password='testpassword123')
-        edit_url = reverse('edit_profile', args=[self.user.id])
-        response = self.client.post(edit_url, {
+        response = self.client.post(self.edit_url, {
             'username': 'newusername',
             'photo': 'photo_url',
             'bio': 'New bio',
