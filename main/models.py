@@ -22,3 +22,7 @@ class Photo(models.Model):
 
     def __str__(self) -> str:
         return self.photo.name
+
+    def delete(self, *args, **kwargs):
+        self.photo.delete(save=False)
+        super().delete(*args, **kwargs)

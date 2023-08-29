@@ -45,6 +45,11 @@ class Event(models.Model):
         if is_new:
             self.hosts.add(self.creator)
 
+    def delete(self, *args, **kwargs):
+        if (self.cover_photo):
+            self.cover_photo.delete(save=False)
+        super().delete(*args, **kwargs)
+
 #Automatically add user to attendees when they are added as host
 @receiver(models.signals.m2m_changed, sender=Event.hosts.through)
 def update_attendees(sender, instance, action, reverse, model, pk_set, **kwargs):

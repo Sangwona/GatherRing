@@ -21,4 +21,4 @@ class GroupTestCase(TestCase):
         self.assertEqual(group.description, 'Sample Description')
         
         # Check if the creator is set correctly
-        self.assertEqual(group.creator, self.user)
+        self.assertEqual(group.creator, self.user)        
