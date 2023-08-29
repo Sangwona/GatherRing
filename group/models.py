@@ -35,6 +35,11 @@ class Group(models.Model):
         # add the creator as an admins/members
             self.admins.add(self.creator)
             self.members.add(self.creator)
+    
+    def delete(self, *args, **kwargs):
+        if (self.cover_photo):
+            self.cover_photo.delete(save=False)
+        super().delete(*args, **kwargs)
         
 class GroupRequest(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='requests')
