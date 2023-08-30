@@ -34,7 +34,7 @@
                 <a class="btn btn-danger m-2" href="#">Delete Group</a>
                 {% endif %}
                 {% if user in group.admins.all %}
-                    <a class="btn btn-secondary m-2" href="#">Manage Group</a>
+                    <a class="btn btn-secondary m-2" href="{% url 'manage_group' group.id %}">Manage Group</a>
                     <a class="btn btn-secondary m-2" href="{% url 'edit_group' group.id %}">Edit Group</a>
                 {% endif %}
             {% elif group.join_mode == "REQUEST"%}
