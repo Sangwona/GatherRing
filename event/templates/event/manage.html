@@ -1,0 +1,16 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+    
+{% for request in requests %}
+<div id="request_box_{{request.id}}" data-request-id="{{request.id}}">
+    {{request.user}}  
+    <button class="btn-request btn-request-accept"> Accept </button>
+    <button class="btn-request btn-request-reject"> Reject </button>
+</div>
+
+{% empty %}
+<span>No requests.</span>
+{% endfor %}
+
+{% endblock %}
