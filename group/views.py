@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+
 from formtools.wizard.views import SessionWizardView
 from django.core.exceptions import PermissionDenied
 
 from .forms import *
+from .models import GroupRequest
 
 # Create your views here.
 
@@ -69,3 +72,39 @@ def all(request):
     return render(request, "group/all.html", {
         'groups': Group.objects.all(),
     })
+
+@login_required
+def toggle_membership(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if (request.user in group.members.all()):
+        group.members.remove(request.user)
+        joined = False
+    else:
+        group.members.add(request.user)
+        joined = True
+    
+    data = {
+        'joined': joined,
+        'member_count': group.members.count()
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def toggle_request(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    user = request.user
+
+    existing_request = group.requests.filter(user=user).first()
+
+    if existing_request:
+        existing_request.delete()
+        requested = False
+    else:
+        r = GroupRequest()
+        r.user = user
+        r.group = group
+        r.save()
+        requested = True
+
+    return JsonResponse({"requested": requested}, status=201)
