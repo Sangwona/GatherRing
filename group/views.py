@@ -74,7 +74,7 @@ def all(request):
     })
 
 @login_required
-def join_group(request, group_id):
+def toggle_membership(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     if (request.user in group.members.all()):
         group.members.remove(request.user)
@@ -91,7 +91,7 @@ def join_group(request, group_id):
     return JsonResponse(data)
 
 @login_required
-def create_group_request(request, group_id):
+def toggle_request(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     user = request.user
 

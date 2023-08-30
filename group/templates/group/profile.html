@@ -39,18 +39,18 @@
                     <a class="btn btn-secondary m-2" href="{% url 'manage_group' group.id %}">Manage Group</a>
                     <a class="btn btn-secondary m-2" href="{% url 'edit_group' group.id %}">Edit Group</a>
                 {% endif %}
-            {% elif group.join_mode == "REQUEST"%}
+            {% elif group.join_mode == "Request"%}
                 {% if request_exists %}
-                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Withdraw Request</button>
+                    <button class="btn btn-secondary request_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Withdraw Request</button>
                 {% else %}
-                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
+                    <button class="btn btn-secondary request_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
                 {% endif %}
             {% else %}
                 <button class="btn btn-secondary join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join Group</button>
             {% endif %}
         {% else %}
-            {% if group.join_mode == "REQUEST"%}
-            <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
+            {% if group.join_mode == "Request"%}
+            <button class="btn btn-secondary request_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
             {% else %}
             <button class="btn btn-secondary join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join Group</button>
             {% endif %}

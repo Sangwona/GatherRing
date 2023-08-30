@@ -7,6 +7,6 @@ urlpatterns = [
     path("edit/<int:group_id>/", views.edit, name="edit_group"),
     path("manage/<int:group_id>/", views.manage, name = "manage_group"),
     path("all/", views.all, name="all_groups"),
-    path("join/<int:group_id>/", views.join_group, name="join_group"),
-    path("request/<int:group_id>/", views.create_group_request, name="create_group_request"),
+    path("toggle_membership/<int:group_id>/", views.toggle_membership, name="toggle_group_membership"),
+    path("toggle_request/<int:group_id>/", views.toggle_request, name="toggle_group_request"),
 ]
