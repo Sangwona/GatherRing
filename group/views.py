@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from formtools.wizard.views import SessionWizardView
-from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
+from formtools.wizard.views import SessionWizardView
+
+from .forms import *
 
 # Create your views here.
 
@@ -19,7 +20,6 @@ def profile(request, group_id):
     })
 
 class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
-    login_url = '/user/login'  # Set custom login URL
     template_name = "group/create.html"
     form_list = [LocationForm1, InterestsForm2, NameForm3, DescriptionForm4]
 
@@ -53,6 +53,13 @@ def edit(request, group_id):
     return render(request, "group/edit.html", {
         "form": editGroupForm,
         "group_id": group_id
+    })
+
+@login_required
+def manage(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    return render(request, "group/manage.html", {
+        'requests': group.requests.all()
     })
 
 def all(request):

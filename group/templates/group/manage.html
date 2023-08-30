@@ -1,0 +1,18 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+<h2>Manage Group</h2>
+<ul>
+{% for request in requests %}
+<li id="request_div_{{request.id}}" data-request-id="{{request.id}}">
+    {{ request.user }}
+    <button class="request_action_btn btn btn-success">Accept</button>
+    <button class="request_action_btn btn btn-danger">Reject</button>
+</li>
+{% empty %}
+No requests.
+{% endfor %}    
+</ul>
+
+{% endblock %}

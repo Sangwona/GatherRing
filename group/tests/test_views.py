@@ -1,48 +1,16 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 
-from group.models import Group
+from group.models import Group, GroupRequest
 from main.models import Interest
-from user.models import User
 from group.forms import *
-
-class ProfileGroupViewTest(TestCase):
-    def setUp(self):
-        # Create a user
-        User = get_user_model()
-        self.user = User.objects.create_user(username="testuser", password="testpassword")
-
-        # Create a group
-        self.group = Group.objects.create(
-            name="Test Group",
-            description="This is a test group",
-            location="Test Location",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.user,
-        )
-
-    def test_group_profile_view(self):
-        self.client.login(username='testuser', password='testpassword')
-
-        # Make a GET request to the 'group' view with the group ID
-        response = self.client.get(reverse('group_profile', args=[str(self.group.id)]))
-
-        # Check if the response status code is 200 (OK)
-        self.assertEqual(response.status_code, 200)
-
-        # Check if the rendered template contains the group's name
-        self.assertContains(response, self.group.name)
-
-        # Check if the rendered template contains the group's description
-        self.assertContains(response, self.group.description)
 
 class CreateGroupFormWizardTestCase(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        User = get_user_model()
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+
         self.interest1 = Interest.objects.create(name='Interest 1')
         self.interest2 = Interest.objects.create(name='Interest 2')
 
@@ -79,12 +47,15 @@ class CreateGroupFormWizardTestCase(TestCase):
 
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/user/login?next=/group/create')
+        self.assertRedirects(response, '/user/login/?next=/group/create/')
 
-class GroupEditTestCase(TestCase):
+class BaseViewTest(TestCase):
     def setUp(self):
+        # Create a user
         User = get_user_model()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        
+        # Create a group
         self.group = Group.objects.create(
             name="Test Group",
             description="This is a test group",
@@ -94,13 +65,36 @@ class GroupEditTestCase(TestCase):
             capacity=50,
             creator=self.user,
         )
-        
+
+class ProfileGroupViewTest(BaseViewTest):
+    def test_group_profile_view(self):
+        # Make a GET request to the 'group' view with the group ID
+        response = self.client.get(reverse('group_profile', args=[str(self.group.id)]))
+
+        # Check if the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the rendered template contains the group's name
+        self.assertContains(response, self.group.name)
+
+        # Check if the rendered template contains the group's description
+        self.assertContains(response, self.group.description)
+
+class GroupEditTestCase(BaseViewTest):
     def test_edit_group_authenticated(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/edit.html')
         self.assertIsInstance(response.context['form'], EditGroupForm)
+    
+    def test_edit_group_unauthenticated(self):
+        # Attempt to access the create group page without authentication
+        response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login/?next=/group/edit/' + str(self.group.id) + '/')
         
     def test_edit_group_post_valid_data(self):
         self.client.login(username='testuser', password='testpassword')
@@ -126,6 +120,58 @@ class GroupEditTestCase(TestCase):
         self.assertTemplateUsed(response, 'group/edit.html')
         self.assertIn('form', response.context)
         self.assertIsInstance(response.context['form'], EditGroupForm)
+
+class GroupManageTestCase(BaseViewTest):
+    def setUp(self):
+        super().setUp()
+        self.group_request = GroupRequest.objects.create(
+            group=self.group,
+            user=self.user
+        )
+    
+    def test_manage_view_with_invalid_group(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_group', args=['9999']))
+        
+        # Returns a 404 page when the group is not found
+        self.assertEqual(response.status_code, 404)
+
+    def test_manage_group_authenticated(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_group', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/manage.html')
+        
+        # Check if 'requests' is present in the context
+        self.assertIn('requests', response.context)
+
+        # Check the number of join requests in the context
+        self.assertEqual(len(response.context['requests']), 1)  
+    
+    def test_manage_group_unauthenticated(self):
+        # Attempt to access the create group page without authentication
+        response = self.client.get(reverse('manage_group', args=[str(self.group.id)]))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login/?next=/group/manage/' + str(self.group.id) + '/')
+    
+    def test_manage_view_without_requests(self):
+        empty_group = Group.objects.create(
+            name='Empty Group',
+            description='This group has no join requests.',
+            location='Test Location',
+            creator=self.user
+        )
+
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_group', args=[str(empty_group.id)]))
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/manage.html')
+        
+        # Assert that a message indicating no join requests is present
+        self.assertContains(response, 'No requests.')
 
 class AllGroupViewTest(TestCase):
     def setUp(self):
