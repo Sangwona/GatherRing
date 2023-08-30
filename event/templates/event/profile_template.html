@@ -9,7 +9,7 @@
                 {% else %}
                 <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel reactive" data-cancel-id="{{event.id}}"> Reactive this Event! </button>
                 {% endif %}
-            <button class="btn btn-secondary" id="manage" data-event-id="{{ event.id }}">Manage Event</button>
+            <a href="{% url 'manage_event' event.id %}" class="btn m-2 btn-secondary">Manage Event</a>
             {% endif %}
             <h1>{{event.name}}</h1>
             <span id="eventStatus-{{event.id}}">

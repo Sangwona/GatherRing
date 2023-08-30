@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from event.models import Event, GroupEvent, EventVisibility, Status
+from event.models import Event, GroupEvent, EventVisibility, Status, EventRequest
 from group.models import Group
 from main.models import JoinMode
 
@@ -272,3 +272,75 @@ class EditGroupEventViewTest(TestCase):
         self.assertTemplateUsed(response, 'event/edit.html')
         # Check if the form has errors
         self.assertFormError(response, 'form', 'hosts', 'This field is required.')
+
+class EventManageTestCase(BaseViewTest):
+    def setUp(self):
+        User = get_user_model()
+        # Create and Log in user
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.form_data = {
+            'name': 'Test Event',
+            'description': 'This is a test event',
+            'visibility': EventVisibility.PUBLIC,
+            'join_mode': JoinMode.DIRECT,
+            'status': Status.ACTIVE,
+            'capacity': 50,
+            'location': 'Test Location',
+            'start_time': timezone.now(),
+            'end_time': timezone.now() + timezone.timedelta(hours=2),
+            'creator': self.user,
+        }
+        self.event = Event.objects.create(**self.form_data)
+        self.event_request = EventRequest.objects.create(
+            event=self.event,
+            user=self.user
+        )
+    
+    def test_manage_view_with_invalid_event(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_event', args=['9999']))
+        
+        # Returns a 404 page when the event is not found
+        self.assertEqual(response.status_code, 404)
+
+    def test_manage_event_authenticated(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_event', args=[str(self.event.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/manage.html')
+        
+        # Check if 'requests' is present in the context
+        self.assertIn('requests', response.context)
+
+        # Check the number of join requests in the context
+        self.assertEqual(len(response.context['requests']), 1)  
+    
+    def test_manage_event_unauthenticated(self):
+        # Attempt to access the create event page without authentication
+        response = self.client.get(reverse('manage_event', args=[str(self.event.id)]))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login/?next=/event/manage/' + str(self.event.id) + '/')
+    
+    def test_manage_view_without_requests(self):
+        empty_event = Event.objects.create(
+            name='Test Event 1',
+            description='This is a test event 1',
+            visibility=EventVisibility.PUBLIC,
+            join_mode=JoinMode.DIRECT,
+            creator=self.user,
+            capacity=50,
+            location='Test Location',
+            start_time=timezone.now(),
+            end_time=timezone.now() + timezone.timedelta(hours=2)
+        )
+
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('manage_event', args=[str(empty_event.id)]))
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event/manage.html')
+        
+        # Assert that a message indicating no join requests is present
+        self.assertContains(response, 'No requests.')

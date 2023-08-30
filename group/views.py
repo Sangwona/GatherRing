@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from formtools.wizard.views import SessionWizardView
+from django.core.exceptions import PermissionDenied
 
 from .forms import *
 
@@ -46,7 +47,6 @@ def edit(request, group_id):
         if editGroupForm.is_valid():
             editGroupForm.save()
             return redirect("group_profile", group_id=group_id)
-        
     else:
         editGroupForm = EditGroupForm(instance=group)
     
@@ -58,9 +58,12 @@ def edit(request, group_id):
 @login_required
 def manage(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
-    return render(request, "group/manage.html", {
-        'requests': group.requests.all()
-    })
+    if request.user in group.admins.all():
+        return render(request, "group/manage.html", {
+            'requests': group.requests.all()
+        })
+    else:
+        raise PermissionDenied
 
 def all(request):
     return render(request, "group/all.html", {

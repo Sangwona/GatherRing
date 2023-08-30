@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import PermissionDenied
 
 from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
 from .models import Event
@@ -87,3 +88,13 @@ def all(request):
         'events': page_obj,
         'is_paginated': page_obj.has_other_pages(),
     })
+
+@login_required
+def manage_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if request.user in event.hosts.all():
+        return render(request, "event/manage.html", {
+            'requests': event.requests.all()
+        })
+    else:
+        raise PermissionDenied
