@@ -1,4 +1,5 @@
 {% extends "main/layout.html" %}
+{% load static %}
 
 {% block body %}
     {% if group.cover_photo %}
@@ -18,18 +19,19 @@
             {{ admin.username }},
         {% endfor %}
     </p>
-    <p>Members: {{ group.members.all.count }}</p>
+    <p>Members: <span class="member_count">{{ group.members.count }}</span></p>
     <p> Interests: 
         {% for interest in group.interests.all %}
             {{ interest.name }},
         {% endfor %}
     </p>
+    
     <div class="d-flex justify-content-center">
         {% if user.is_authenticated %}
             {% if user in group.members.all %}
             <a class="btn btn-secondary m-2" href="{% url 'create_event_ingroup' group.id %}">Create Event</a>
                 {% if user is not group.creator %}
-                <button class="btn btn-secondary m-2 join_button" data-group-id="{{group.id}}">Leave Group</button>
+                <button class="btn btn-secondary m-2 join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Leave Group</button>
                 {% else %}
                 <a class="btn btn-danger m-2" href="#">Delete Group</a>
                 {% endif %}
@@ -39,19 +41,24 @@
                 {% endif %}
             {% elif group.join_mode == "REQUEST"%}
                 {% if request_exists %}
-                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}">Withdraw Request</button>
+                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Withdraw Request</button>
                 {% else %}
-                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}">Request to Join</button>
+                    <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
                 {% endif %}
             {% else %}
-                <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Join Group</button>
+                <button class="btn btn-secondary join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join Group</button>
             {% endif %}
         {% else %}
             {% if group.join_mode == "REQUEST"%}
-            <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}">Request to Join</button>
+            <button class="btn btn-secondary join_button request" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to Join</button>
             {% else %}
-            <button class="btn btn-secondary join_button" data-group-id="{{group.id}}">Join Group</button>
+            <button class="btn btn-secondary join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join Group</button>
             {% endif %}
         {% endif %}
     </div>
+
+{% block script %}
+<script src="{% static 'group/profile.js' %}"></script>
+{% endblock %}  
+
 {% endblock %}
