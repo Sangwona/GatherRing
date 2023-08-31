@@ -288,3 +288,43 @@ class GroupViewsTestCase(BaseViewTest):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/user/login/?next=/group/toggle_request/' + str(self.group.id) + '/')
+
+class GroupMembersTestCase(BaseViewTest):
+    def setUp(self):
+        User = get_user_model()
+        self.user1 = User.objects.create_user(username="testuser1", password="testpassword")
+        self.user2 = User.objects.create_user(username="testuser2", password="testpassword")
+        self.group = Group.objects.create(
+            name="Test Group",
+            description="This is a test group",
+            location="Test Location",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user1,
+        )
+        self.group.members.add(self.user2)
+        
+        self.url = reverse('show_group_members', args=[str(self.group.pk)])
+        
+    def test_show_group_members(self):
+        response = self.client.get(self.url)
+        
+        self.assertEqual(response.status_code, 200)
+        
+        members_data = response.json()
+        self.assertEqual(len(members_data), 2)
+        
+        member1_data = members_data[0]
+        self.assertEqual(member1_data['id'], self.user1.id)
+        self.assertEqual(member1_data['username'], self.user1.username)
+        
+        member2_data = members_data[1]
+        self.assertEqual(member2_data['id'], self.user2.id)
+        self.assertEqual(member2_data['username'], self.user2.username)
+    
+    def test_group_not_found(self):
+        invalid_group_id = 999
+        url = reverse('show_group_members', args=[str(invalid_group_id)])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
