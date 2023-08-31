@@ -237,54 +237,54 @@ class GroupViewsTestCase(BaseViewTest):
         User = get_user_model()
         self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
 
-    def test_join_group_view(self):
+    def test_toggle_group_membership_view(self):
         self.client.login(username='testuser2', password='testpassword2')
 
         # Initial state: User is not a member
         self.assertFalse(self.group.members.filter(pk=self.user2.pk).exists())
 
         # Sending a POST request to join the group
-        self.client.post(reverse('join_group', args=[str(self.group.id)]))
+        self.client.post(reverse('toggle_group_membership', args=[str(self.group.id)]))
 
         # After joining, the user should be a member
         self.assertTrue(self.group.members.filter(pk=self.user2.pk).exists())
 
         # Sending a second POST request to leave the group
-        self.client.post(reverse('join_group', args=[str(self.group.id)]))
+        self.client.post(reverse('toggle_group_membership', args=[str(self.group.id)]))
 
         # After leaving, the user should not be a member
         self.assertFalse(self.group.members.filter(pk=self.user2.pk).exists())
     
-    def test_join_group_unauthenticated(self):
+    def test_toggle_group_membership_unauthenticated(self):
         # Attempt to join a group unauthenticated
-        response = self.client.post(reverse('join_group', args=[str(self.group.id)]))
+        response = self.client.post(reverse('toggle_group_membership', args=[str(self.group.id)]))
 
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/user/login/?next=/group/join/' + str(self.group.id) + '/')
+        self.assertRedirects(response, '/user/login/?next=/group/toggle_membership/' + str(self.group.id) + '/')
 
-    def test_create_group_request_view(self):
+    def test_toggle_group_request_view(self):
         self.client.login(username='testuser2', password='testpassword2')
 
         # Initial state: No group request exists
         self.assertFalse(self.group.requests.filter(user=self.user2).exists())
 
         # Sending a POST request to create a group request
-        self.client.post(reverse('create_group_request', args=[str(self.group.id)]))
+        self.client.post(reverse('toggle_group_request', args=[str(self.group.id)]))
 
         # After creating the request, it should exist in the database
         self.assertTrue(self.group.requests.filter(user=self.user2).exists())
 
         # Sending a second POST request to cancel the request
-        self.client.post(reverse('create_group_request', args=[str(self.group.id)]))
+        self.client.post(reverse('toggle_group_request', args=[str(self.group.id)]))
 
         # After canceling, the request should no longer exist
         self.assertFalse(self.group.requests.filter(user=self.user2).exists())
 
-    def test_create_group_request_unauthenticated(self):
+    def test_toggle_group_request_unauthenticated(self):
         # Attempt to join a group unauthenticated
-        response = self.client.post(reverse('create_group_request', args=[str(self.group.id)]))
+        response = self.client.post(reverse('toggle_group_request', args=[str(self.group.id)]))
 
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/user/login/?next=/group/request/' + str(self.group.id) + '/')
+        self.assertRedirects(response, '/user/login/?next=/group/toggle_request/' + str(self.group.id) + '/')

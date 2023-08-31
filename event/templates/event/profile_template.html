@@ -34,19 +34,22 @@
             {% if user.is_authenticated and user not in event.attendees.all %}
                 {% if event.join_mode == "Request" %}
                     {% if request_exists %}
-                    <button class="request_join join-btn request" data-join-event-id="{{event.id}}">Witdraw join Request</button>
+                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Witdraw join Request</button>
                     {% else %}
-                    <button class="request_join join-btn request" data-join-event-id="{{event.id}}">Request to join</button>
+                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to join</button>
                     {% endif %}
                 {% else %}
-                <button id="join-event-btn-{{event.id}}" class="join-event-btn join" data-join-event-id="{{event.id}}">Join this event</button>
+                    <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join this event</button>
                 {% endif %}
-            {% else %}
-                {% if user.is_authenticated and user != event.creator %}
-                <button id="join-event-btn-{{event.id}}" class="join-event-btn leave" data-join-event-id="{{event.id}}">Leave this event</button>
+            {% elif user.is_authenticated and user != event.creator %}
+                <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Leave this event</button>
+            {% elif not user.is_authenticated %}
+                {% if event.join_mode == "Request" %}
+                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to join</button>
+                {% else %}
+                    <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join this event</button>
                 {% endif %}
             {% endif %}
-
         </div>
 
         <div class="event-details">
@@ -64,7 +67,7 @@
                     <p><strong>Location:</strong><br>{{event.location}}</p>
                 </div>
                 <div class="col-12 col-md-4">
-                    <span data-members-id="{{event.id}}" class="btn-info view-members-btn"> {{event.attendees.count}} members </span>
+                    <p>Atendees: <span data-members-id="{{event.id}}" class="attendee_count btn-info view-members-btn">{{ group.members.count }}</span></p>
                 </div>
                 <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
                     <div id="members-popup" style="display: none;">
