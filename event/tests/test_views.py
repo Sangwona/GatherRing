@@ -344,3 +344,74 @@ class EventManageTestCase(BaseViewTest):
         
         # Assert that a message indicating no join requests is present
         self.assertContains(response, 'No requests.')
+
+class EventAttendanceTestCase(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
+        self.event = Event.objects.create(
+            name= 'Test Event',
+            description= 'This is a test event',
+            visibility= EventVisibility.PUBLIC,
+            join_mode= JoinMode.DIRECT,
+            status= Status.ACTIVE,
+            capacity= 50,
+            location= 'Test Location',
+            start_time= timezone.now(),
+            end_time= timezone.now() + timezone.timedelta(hours=2),
+            creator=self.user
+        )
+        
+
+    def test_toggle_event_attendance_view(self):
+        self.client.login(username='testuser2', password='testpassword2')
+
+        # Initial state: User is not a member
+        self.assertFalse(self.event.attendees.filter(pk=self.user2.pk).exists())
+
+        # Sending a POST request to join the event
+        self.client.post(reverse('toggle_event_attendance', args=[str(self.event.id)]))
+
+        # After joining, the user should be a member
+        self.assertTrue(self.event.attendees.filter(pk=self.user2.pk).exists())
+
+        # Sending a second POST request to leave the event
+        self.client.post(reverse('toggle_event_attendance', args=[str(self.event.id)]))
+
+        # After leaving, the user should not be a member
+        self.assertFalse(self.event.attendees.filter(pk=self.user2.pk).exists())
+
+    def test_toggle_event_attendance_unauthenticated(self):
+        # Attempt to join an event unauthenticated
+        response = self.client.post(reverse('toggle_event_attendance', args=[str(self.event.id)]))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login/?next=/event/toggle_attendance/' + str(self.event.id) + '/')
+
+    def test_toggle_event_request_view(self):
+        self.client.login(username='testuser2', password='testpassword2')
+
+        # Initial state: No event request exists
+        self.assertFalse(self.event.requests.filter(user=self.user2).exists())
+
+        # Sending a POST request to create a event request
+        self.client.post(reverse('toggle_event_request', args=[str(self.event.id)]))
+
+        # After creating the request, it should exist in the database
+        self.assertTrue(self.event.requests.filter(user=self.user2).exists())
+
+        # Sending a second POST request to cancel the request
+        self.client.post(reverse('toggle_event_request', args=[str(self.event.id)]))
+
+        # After canceling, the request should no longer exist
+        self.assertFalse(self.event.requests.filter(user=self.user2).exists())
+
+    def test_toggle_event_request_unauthenticated(self):
+        # Attempt to join a event unauthenticated
+        response = self.client.post(reverse('toggle_event_request', args=[str(self.event.id)]))
+
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/user/login/?next=/event/toggle_request/' + str(self.event.id) + '/')

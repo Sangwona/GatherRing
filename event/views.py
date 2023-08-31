@@ -2,11 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 
 from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
-from .models import Event
+from .models import Event, EventRequest
 
 from group.models import Group
+
 
 # Create your views here.
 def create(request):
@@ -98,3 +100,39 @@ def manage_event(request, event_id):
         })
     else:
         raise PermissionDenied
+    
+@login_required
+def toggle_attendance(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if (request.user in event.attendees.all()):
+        event.attendees.remove(request.user)
+        joined = False
+    else:
+        event.attendees.add(request.user)
+        joined = True
+    
+    data = {
+        'joined': joined,
+        'attendee_count': event.attendees.count()
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def toggle_request(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    user = request.user
+
+    existing_request = event.requests.filter(user=user).first()
+
+    if existing_request:
+        existing_request.delete()
+        requested = False
+    else:
+        eventRequest = EventRequest()
+        eventRequest.user = user
+        eventRequest.event = event
+        eventRequest.save()
+        requested = True
+
+    return JsonResponse({"requested": requested}, status=201)
