@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # for oauth_app 
-    'oauth_app',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
