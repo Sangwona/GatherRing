@@ -1,6 +1,7 @@
 {% extends "main/layout.html" %}
 
 {% block body %}
-<h2>Main Page</h2>
+
+{% include "main/search_result.html" with list=list %}
 
 {% endblock %}

@@ -14,7 +14,14 @@
             <div class="row h-100 justify-content-start">
                 <!-- Sidebar -->
                 <nav class="col-2 navigation bg-light">
-                    <a class="navbar-brand">GatherRing</a>
+                    <a class="navbar-brand" href="{% url 'index' %}">GatherRing</a>
+                    <div class="searchBox">
+                        <form id="searchForm" action="{% url 'search' %}" method="get">
+                            <input class="search" type="text" name="q">
+                            <button type="submit" id = "btn-search">Search</button>
+                        </form>
+                        {% comment %} <img id="search-btn" src="{% static 'resource/magnifying-glass-solid.svg' %}" alt="search button"> {% endcomment %}
+                    </div>
                     <div>
                         <ul class="navbar-nav mr-auto">
                         {% if user.is_authenticated %}
