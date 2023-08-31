@@ -1,10 +1,12 @@
 {% extends "main/layout.html" %}
-
+{% load static %}
 
 {% block body %}
 
 {% include "event/profile_template.html" with event=event %}
 
- 
-
 {% endblock %}
+
+{% block script %}
+<script src="{% static 'event/profile.js' %}"></script>
+{% endblock %} 
