@@ -1,3 +1,11 @@
 html, body {
     height: 100%;
 }
+
+.search-group {
+    border: 3px solid aquamarine;
+}
+
+.search-event {
+    border: 3px solid blue;
+}
