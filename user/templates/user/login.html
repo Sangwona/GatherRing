@@ -1,7 +1,9 @@
 {% extends "main/layout.html" %}
-
+{% load socialaccount %}
 {% block body %}
 
+    <a href="{% provider_login_url 'google' %}">Login With Google</a>
+    
     <h2>Login</h2>
     
     <form action="{% url 'login' %}" method="post">
