@@ -108,3 +108,8 @@ def toggle_request(request, group_id):
         requested = True
 
     return JsonResponse({"requested": requested}, status=201)
+
+def show_group_members(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    members = group.members.all().values('id', 'username')
+    return JsonResponse(list(members), safe=False)

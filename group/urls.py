@@ -9,4 +9,5 @@ urlpatterns = [
     path("all/", views.all, name="all_groups"),
     path("toggle_membership/<int:group_id>/", views.toggle_membership, name="toggle_group_membership"),
     path("toggle_request/<int:group_id>/", views.toggle_request, name="toggle_group_request"),
+    path("members/<int:group_id>/", views.show_group_members, name="show_group_members"),
 ]

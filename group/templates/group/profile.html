@@ -1,6 +1,10 @@
 {% extends "main/layout.html" %}
 {% load static %}
 
+{% block head %}
+<link href="{% static 'group/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
     {% if group.cover_photo %}
         <img src="{{ group.cover_photo.url }}" alt="group photo">
@@ -19,7 +23,12 @@
             {{ admin.username }},
         {% endfor %}
     </p>
-    <p>Members: <span class="member_count">{{ group.members.count }}</span></p>
+    <p data-members-id="{{group.id}}" class ="view-members-btn"> Members: <span  class="member_count">{{ group.members.count }}</span></p>
+        <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
+        <div id="members-popup" style="display: none;">
+            <ul id="members-list">
+            </ul>
+        </div>
     <p> Interests: 
         {% for interest in group.interests.all %}
             {{ interest.name }},
@@ -56,9 +65,8 @@
             {% endif %}
         {% endif %}
     </div>
+{% endblock %}
 
 {% block script %}
 <script src="{% static 'group/profile.js' %}"></script>
 {% endblock %}  
-
-{% endblock %}
