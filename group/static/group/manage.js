@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleRequest(e) {
-    var parent_div = e.currentTarget.parentElement;
-    var request_id = parent_div.getAttribute('data-request-id');
+    const parent_div = e.currentTarget.parentElement;
+    const request_id = parent_div.getAttribute('data-request-id');
 
         fetch(`/group/handle_request/${request_id}/`, {
             method: 'POST',
