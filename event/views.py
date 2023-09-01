@@ -4,9 +4,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
-from .models import Event, EventRequest
+from .models import Event, EventRequest, Status
 
 from group.models import Group
 
@@ -159,3 +160,22 @@ def handle_request(request, request_id):
         return JsonResponse({"message": "success"}, status=201)      
     else:
         raise PermissionDenied
+    
+@login_required
+def handle_cancelActive_event(request, event_id):
+    print("cancel event")
+    event = get_object_or_404(Event, pk=event_id)
+    data = json.loads(request.body)
+    if request.user in event.hosts.all():
+        if data.get("action", "") == "reactive":
+            event.status = Status.ACTIVE        
+            isActive = True
+        else:
+            event.status = Status.CANCELED
+            isActive = False
+        event.save()
+        data = {
+            'isActive' : isActive
+        }
+    return JsonResponse(data)
+

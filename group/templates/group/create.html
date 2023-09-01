@@ -1,5 +1,5 @@
 {% extends "main/layout.html" %}
-
+{% load static %}
 {% block body %}
 <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
 <form action="" method="post">
@@ -22,5 +22,8 @@
     
 </form>
 
-
+{% endblock %}
+{% block script %}
+<script src="{% static 'main/location_api.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>
 {% endblock %}

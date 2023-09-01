@@ -9,6 +9,5 @@ class User(AbstractUser):
     location = models.CharField(max_length=100, blank=True)
     location_lat = models.FloatField(null=True, blank=True)
     location_lng = models.FloatField(null=True, blank=True)
-
     def __str__(self) -> str:
         return self.username

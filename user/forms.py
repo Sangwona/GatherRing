@@ -5,34 +5,32 @@ from .models import User
 class RegisterForm(UserCreationForm):
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Password'}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Confirm Password'}))
-
+    username = forms.CharField(widget=forms.TextInput(attrs={'type':'text', 'class':'form-control', 'placeholder':'Username'}))
+    
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['email']
         widgets = {
-            'username': forms.TextInput(attrs={'type':'text', 'class':'form-control', 'placeholder':'Username'})
+            'email': forms.TextInput(attrs={'autofocus': True, 'type':'text', 'class':'form-control', 'placeholder':'Email'})
         }
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Username'}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'autofocus': True, 'type':'text', 'class':'form-control', 'placeholder':'Username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Password'}))
-    class Meta:
-        model = User
-        fields = ['username', 'password']
 
 class EditUserForm(forms.ModelForm):
-    new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Password'}), required=False)
-    new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Password'}), required=False)
-
     class Meta:
         model = User
-        fields = ['photo', 'bio', 'interests', 'location']
+        fields = ['photo', 'bio', 'interests', 'location', 'location_lat', 'location_lng']
         widgets = {
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
             'bio': forms.Textarea(attrs={'rows':'4', 'class':'form-control', 'placeholder':'A few words about you ...'}),
             'interests': forms.SelectMultiple(attrs={'class':'form-control'}),
-            'location': forms.TextInput(attrs={'id': 'location-name', 'type':'text', 'class':'form-control', 'placeholder':'Location'}),
+            'location': forms.TextInput(attrs={'id': 'api-location', 'type':'text', 'class':'form-control', 'placeholder':'Location'}),
+            'location_lat' : forms.HiddenInput(attrs={'id': 'location-lat'}),
+            'location_lng' : forms.HiddenInput(attrs={'id': 'location-lng'}),
         }
+
         
     def clean(self):
         cleaned_data = super().clean()

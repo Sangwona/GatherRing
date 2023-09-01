@@ -1,62 +1,47 @@
 {% extends "main/layout.html" %}
-
+{% load static %}
+{% block head %}
+<link href="{% static 'user/profile.css' %}" rel="stylesheet">
+{% endblock %}
 {% block body %}
-<div class="container-fluid pt-3">
+<div class="form-box container-fluid pt-3">
     <div class="card mb-4">
-        <div class="card-header row align-items-center text-center">
-            <div class="col">
-                <h6 class="mb-0">Edit profile </h6>
+        <div class="card-header">
+            <div class="row align-items-center text-center">
+                <div class="col">
+                    <h6 class="mb-0">Edit Profile</h6>
+                </div>
             </div>
         </div>
         <div class="card-body">
-            <form method="POST" action="{% url 'edit_profile' user_id %}" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'edit_profile' user.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <h6 class="heading-small text-muted mb-4">User information</h6>
-                <div>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-control-label" for="{{ form.username.id_for_label }}">Username</label>
-                                {{ form.username }}
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-control-label" for="{{ form.email.id_for_label }}">Email address</label>
-                                {{ form.email }}
-                            </div>
-                        </div>
+                <h6 class="heading-small text-muted mb-4">Profile Photo</h6>
+                <div class="row">
+                    {% if user.photo %}
+                    <div class="col-md-3">
+                        <img src="{{ user.photo.url }}" class="profile_photo">
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-control-label" for="{{ form.first_name.id_for_label }}">First name</label>
-                                {{ form.first_name }}
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-control-label" for="{{ form.last_name.id_for_label }}">Last name</label>
-                                {{ form.last_name }}
-                            </div>
+                    {% endif %}
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label class="form-control-label" for="{{ form.photo.id_for_label }}">Photo</label>
+                            {{ form.photo }}
                         </div>
                     </div>
                 </div>
                 <hr class="horizontal dark my-4">
-                <!-- Address -->
                 <h6 class="heading-small text-muted mb-4">Location</h6>
                 <div>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="form-control-label" for="{{ form.location.id_for_label }}">Address</label>
                                 {{ form.location }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr class="horizontal dark my-4">
-                <!-- Bio -->
                 <h6 class="heading-small text-muted mb-4">About me</h6>
                 <div>
                     <div class="row">
@@ -75,22 +60,20 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="form-control-label" for="{{ form.photo.id_for_label }}">Photo</label>
-                                {{ form.photo }}
-                            </div>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="text-center">
-                    <input type="submit" value="Save" id ="save_userEdit" class="btn btn-primary">
                     <input type="submit" value="Save" class="btn btn-primary">
-                    <a href={% url 'user_profile' user_id %} class="btn btn-danger">Cancel</a>
+                    <a href={% url 'user_profile' user.id %} class="btn btn-danger">Cancel</a>
                 </div>
+                
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'main/location_api.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>
 {% endblock %}

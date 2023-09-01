@@ -3,9 +3,14 @@ from .models import Group
 from main.models import Interest
 
 class LocationForm1(forms.ModelForm):
+    location = forms.CharField(
+        widget=forms.TextInput(attrs={'autofocus': True, 'id': 'api-location'})
+    )
+    location_lat = forms.FloatField(required=False, widget=forms.HiddenInput(attrs={'id': 'location-lat'}))
+    location_lng = forms.FloatField(required=False, widget=forms.HiddenInput(attrs={'id': 'location-lng'}))
     class Meta:
         model = Group
-        fields = ["location"]
+        fields = ["location", "location_lat", "location_lng"]
 
 class InterestsForm2(forms.ModelForm):
     class Meta:
@@ -23,6 +28,11 @@ class DescriptionForm4(forms.ModelForm):
         fields = ["description"]
 
 class EditGroupForm(forms.ModelForm):
+    location = forms.CharField(
+        widget=forms.TextInput(attrs={'autofocus': True, 'id': 'api-location'})
+    )
+    location_lat = forms.FloatField(required=False, widget=forms.HiddenInput(attrs={'id': 'location-lat'}))
+    location_lng = forms.FloatField(required=False, widget=forms.HiddenInput(attrs={'id': 'location-lng'}))
     class Meta:
         model = Group
         exclude = ["creator", "photos", "members", "created_at"]
