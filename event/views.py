@@ -11,6 +11,7 @@ from group.models import Group
 
 
 # Create your views here.
+@login_required
 def create(request):
     if request.method == "POST":
         createEventForm = CreateEventForm(request.POST)
@@ -136,3 +137,8 @@ def toggle_request(request, event_id):
         requested = True
 
     return JsonResponse({"requested": requested}, status=201)
+
+def show_event_attendees(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    attendees = event.attendees.all().values('id', 'username')
+    return JsonResponse(list(attendees), safe=False)
