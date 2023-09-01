@@ -1,18 +1,21 @@
 {% extends "main/layout.html" %}
+{% load static %}
 
 {% block body %}
 
 <h2>Manage Group</h2>
-<ul>
 {% for request in requests %}
-<li id="request_div_{{request.id}}" data-request-id="{{request.id}}">
-    {{ request.user }}
-    <button class="request_action_btn btn btn-success">Accept</button>
-    <button class="request_action_btn btn btn-danger">Reject</button>
-</li>
+<div data-request-id="{{request.id}}">
+    {{request.user}}  
+    <button class="btn btn-success handle_request_btn accept"> Accept </button>
+    <button class="btn btn-danger handle_request_btn reject"> Reject </button>
+</div>
 {% empty %}
 No requests.
 {% endfor %}    
-</ul>
 
 {% endblock %}
+
+{% block script %}
+<script src="{% static 'group/manage.js' %}"></script>
+{% endblock %} 

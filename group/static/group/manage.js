@@ -8,7 +8,7 @@ function handleRequest(e) {
     const parent_div = e.currentTarget.parentElement;
     const request_id = parent_div.getAttribute('data-request-id');
 
-        fetch(`/event/handle_request/${request_id}/`, {
+        fetch(`/group/handle_request/${request_id}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
