@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
@@ -113,3 +114,18 @@ def show_group_members(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     members = group.members.all().values('id', 'username')
     return JsonResponse(list(members), safe=False)
+
+@login_required
+def handle_request(request, request_id):
+    groupRequest = get_object_or_404(GroupRequest, pk=request_id)
+    requestedGroup = groupRequest.group
+    requestedUser = groupRequest.user
+
+    if request.user in requestedGroup.admins.all():
+        data = json.loads(request.body)
+        if data.get("action") == "accept":
+            requestedGroup.members.add(requestedUser)
+        groupRequest.delete()
+        return JsonResponse({"message": "success"}, status=201)      
+    else:
+        raise PermissionDenied
