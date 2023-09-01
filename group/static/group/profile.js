@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showGroupMembers(e) {
-    console.log("showmemebers");
     const groupID = e.currentTarget.getAttribute('data-members-id');
     fetch(`/group/members/${groupID}/`)
         .then(res => res.json())

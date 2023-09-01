@@ -20,7 +20,6 @@ class InterestsForm2TestCase(TestCase):
 
     def test_interests_form_valid_data(self):
         form = InterestsForm2(data={'interests': [self.interest1, self.interest2]})
-        print(form.errors)
         self.assertTrue(form.is_valid())
 
     def test_interests_form_empty_data(self):
