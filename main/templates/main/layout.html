@@ -62,5 +62,6 @@
         </div>  
         {% block script %}
         {% endblock %}
+        <script>var CSRF_TOKEN = '{{ csrf_token }}';</script>        
     </body>
 </html>

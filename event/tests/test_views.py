@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -88,8 +87,9 @@ class CreateGroupEventViewTest(BaseViewTest):
 
     def test_create_group_event_view_POST_group_not_found(self):
         non_existent_group_id = 9999  # An ID that does not exist in your database
-        with self.assertRaises(ObjectDoesNotExist):  # Should raise an exception
-            self.client.post(reverse('create_event_ingroup', args=[str(non_existent_group_id)]), data=self.group_event_form_data)
+        response = self.client.post(reverse('create_event_ingroup', args=[str(non_existent_group_id)]), data=self.group_event_form_data)
+        # Returns a 404 page when the event is not found
+        self.assertEqual(response.status_code, 404)
 
     def test_create_group_event_view_POST_invalid_form(self):
         invalid_data = self.form_data.copy()
@@ -460,3 +460,70 @@ class ShowEventAttendeesTestCase(BaseViewTest):
         url = reverse('show_event_attendees', args=[str(invalid_event_id)])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+class HandleRequestViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.host_user = User.objects.create_user(username='hostuser', password='testpassword')
+        self.non_host_user = User.objects.create_user(username='nothostuser', password='testpassword')
+        self.event = Event.objects.create(
+            name= 'Test Event',
+            description= 'This is a test event',
+            visibility= EventVisibility.PUBLIC,
+            join_mode= JoinMode.DIRECT,
+            status= Status.ACTIVE,
+            capacity= 50,
+            location= 'Test Location',
+            start_time= timezone.now(),
+            end_time= timezone.now() + timezone.timedelta(hours=2),
+            creator=self.host_user
+        )
+        self.event.hosts.add(self.host_user)
+        self.request = EventRequest.objects.create(user=self.non_host_user, event=self.event)
+
+    def test_handle_request_accept(self):
+        self.client.login(username='hostuser', password='testpassword')
+
+        response = self.client.post(reverse('handle_event_request', args=[str(self.request.id)]), {
+            'action': 'accept'
+        }, content_type='application/json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), {"message": "success"})
+
+        # Check that user was added to attendees
+        self.assertTrue(self.non_host_user in self.event.attendees.all())
+        # Check that the request was deleted
+        with self.assertRaises(EventRequest.DoesNotExist):
+            EventRequest.objects.get(pk=self.request.id)
+
+    def test_handle_request_reject(self):
+        self.client.login(username='hostuser', password='testpassword')
+
+        response = self.client.post(reverse('handle_event_request', args=[str(self.request.id)]), {
+            'action': 'reject'
+        }, content_type='application/json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), {"message": "success"})
+
+        # Check that user was not added to attendees
+        self.assertFalse(self.non_host_user in self.event.attendees.all())
+        # Check that the request was deleted
+        with self.assertRaises(EventRequest.DoesNotExist):
+            EventRequest.objects.get(pk=self.request.id)
+
+    def test_handle_request_non_host(self):
+        # Login as a different user who is not a host
+        self.client.login(username='nothostuser', password='testpassword')
+
+        # Send a POST request to accept the request
+        response = self.client.post(reverse('handle_event_request', args=[str(self.request.id)]), {
+            'action': 'accept'
+        }, content_type='application/json')
+
+        # Check that the response is a PermissionDenied error
+        self.assertEqual(response.status_code, 403)
+
+        # Check that user was not added to attendees
+        self.assertFalse(self.non_host_user in self.event.attendees.all())

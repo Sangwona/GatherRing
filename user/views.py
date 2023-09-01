@@ -2,9 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from django.http import Http404
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 
 from .forms import RegisterForm, LoginForm, EditUserForm
 from .models import User
@@ -14,7 +11,7 @@ def login_view(request):
     if request.method == "POST":
         loginForm = LoginForm(data=request.POST)
         if (loginForm.is_valid()):
-            login(request, loginForm.get_user())
+            login(request, loginForm.get_user(), backend='django.contrib.auth.backends.ModelBackend')
             return redirect("index")
         else:
             return render(request, "user/login.html", {
@@ -34,7 +31,7 @@ def register(request):
         registerForm = RegisterForm(request.POST)
         if (registerForm.is_valid()):
             user = registerForm.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("index")
         else:
             return render(request, "user/register.html", {

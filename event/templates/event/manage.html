@@ -1,12 +1,12 @@
 {% extends "main/layout.html" %}
+{% load static %}
 
 {% block body %}
-    
 {% for request in requests %}
-<div id="request_box_{{request.id}}" data-request-id="{{request.id}}">
+<div data-request-id="{{request.id}}">
     {{request.user}}  
-    <button class="btn-request btn-request-accept"> Accept </button>
-    <button class="btn-request btn-request-reject"> Reject </button>
+    <button class="btn btn-success handle_request_btn accept"> Accept </button>
+    <button class="btn btn-danger handle_request_btn reject"> Reject </button>
 </div>
 
 {% empty %}
@@ -14,3 +14,7 @@
 {% endfor %}
 
 {% endblock %}
+
+{% block script %}
+<script src="{% static 'event/manage.js' %}"></script>
+{% endblock %} 

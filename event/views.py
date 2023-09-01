@@ -1,6 +1,7 @@
+import json 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 
@@ -31,12 +32,13 @@ def create(request):
     
 @login_required
 def create_ingroup(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
     if request.method == "POST":
         createGroupEventForm = CreateGroupEventForm(request.POST)
         if createGroupEventForm.is_valid():
             group_event = createGroupEventForm.save(commit=False)
             group_event.creator = request.user
-            group_event.group = Group.objects.get(pk=group_id)
+            group_event.group = group
             group_event.save()
 
             return event_profile(request, group_event.id)
@@ -142,3 +144,18 @@ def show_event_attendees(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     attendees = event.attendees.all().values('id', 'username')
     return JsonResponse(list(attendees), safe=False)
+
+@login_required
+def handle_request(request, request_id):
+    eventRequest = get_object_or_404(EventRequest, pk=request_id)
+    requestedEvent = eventRequest.event
+    requestedUser = eventRequest.user
+
+    if request.user in requestedEvent.hosts.all():
+        data = json.loads(request.body)
+        if data.get("action") == "accept":
+            requestedEvent.attendees.add(requestedUser)
+        eventRequest.delete()
+        return JsonResponse({"message": "success"}, status=201)      
+    else:
+        raise PermissionDenied
