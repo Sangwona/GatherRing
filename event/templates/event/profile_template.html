@@ -67,7 +67,7 @@
                     <p><strong>Location:</strong><br>{{event.location}}</p>
                 </div>
                 <div class="col-12 col-md-4">
-                    <p>Atendees: <span data-members-id="{{event.id}}" class="attendee_count btn-info view-members-btn">{{ group.members.count }}</span></p>
+                    <p data-members-id="{{event.id}}" class="view-members-btn">Attendees: <span class="attendee_count">{{ event.attendees.count }}</span></p>
                 </div>
                 <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
                     <div id="members-popup" style="display: none;">
