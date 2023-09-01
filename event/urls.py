@@ -13,5 +13,5 @@ urlpatterns = [
     path("toggle_request/<int:event_id>/", views.toggle_request, name="toggle_event_request"),
     path("attendees/<int:event_id>/", views.show_event_attendees, name="show_event_attendees"),
     path("handle_request/<int:request_id>/", views.handle_request, name="handle_event_request"),
-    path("handle_cancelActive/<int:event_id>/", views.handle_cancelActive_event, name="handle_cancelActive_event"),
+    path("change_status/<int:event_id>/", views.change_status_event, name="change_status_event"),
 ]

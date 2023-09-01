@@ -162,8 +162,7 @@ def handle_request(request, request_id):
         raise PermissionDenied
     
 @login_required
-def handle_cancelActive_event(request, event_id):
-    print("cancel event")
+def change_status_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     data = json.loads(request.body)
     if request.user in event.hosts.all():

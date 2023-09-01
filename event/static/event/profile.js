@@ -86,7 +86,7 @@ function cancelOrActiveEvent(e) {
     const eventId = e.currentTarget.getAttribute('data-cancel-id');
     const isReactive = e.currentTarget.classList.contains('reactive');
     
-    fetch(`/event/handle_cancelActive/${eventId}/`, {
+    fetch(`/event/change_status/${eventId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

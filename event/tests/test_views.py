@@ -1,11 +1,12 @@
+import json
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-
 from event.models import Event, GroupEvent, EventVisibility, Status, EventRequest
 from group.models import Group
 from main.models import JoinMode
+import unittest
 
 class BaseViewTest(TestCase):
     def setUp(self):
@@ -527,3 +528,64 @@ class HandleRequestViewTest(TestCase):
 
         # Check that user was not added to attendees
         self.assertFalse(self.non_host_user in self.event.attendees.all())
+
+class ChangeStatusEventTestCase(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.event = Event.objects.create(
+            name= 'Test Event',
+            description= 'This is a test event',
+            visibility= EventVisibility.PUBLIC,
+            join_mode= JoinMode.DIRECT,
+            status= Status.ACTIVE,
+            capacity= 50,
+            location= 'Test Location',
+            start_time= timezone.now(),
+            end_time= timezone.now() + timezone.timedelta(hours=2),
+            creator=self.user
+        )
+
+    def test_change_status_active(self):
+        # Log in the user
+        self.client.login(username='testuser', password='testpassword')
+
+        # Define the data for the request
+        data = {'action': 'reactive'}
+        url = reverse('change_status_event', args=[str(self.event.pk)])
+
+        # Make a POST request to change the status to ACTIVE
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+
+        # Check if the response is successful (status code 200)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the event status has changed to ACTIVE
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.status, Status.ACTIVE)
+
+        # Check if the response data contains 'isActive' as True
+        response_data = json.loads(response.content)
+        self.assertTrue(response_data['isActive'])
+
+    def test_change_status_cancel(self):
+        # Log in the user
+        self.client.login(username='testuser', password='testpassword')
+
+        # Define the data for the request
+        data = {'action': 'cancel'}
+        url = reverse('change_status_event', args=[str(self.event.pk)])
+
+        # Make a POST request to change the status to CANCELED
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+
+        # Check if the response is successful (status code 200)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the event status has changed to CANCELED
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.status, Status.CANCELED)
+
+        # Check if the response data contains 'isActive' as False
+        response_data = json.loads(response.content)
+        self.assertFalse(response_data['isActive'])
