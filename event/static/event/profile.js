@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.view-members-btn').forEach(btn => {
         btn.addEventListener('click', showEventAttendees);
     });
+    document.querySelectorAll('.btn-event-cancel').forEach(btn => {
+        btn.addEventListener('click', cancelOrActiveEvent)
+    })
 });
 
 function showEventAttendees(e) {
@@ -73,9 +76,41 @@ function createOrDeleteEventRequest(e) {
                     request_btn.textContent = "Request to Join";
                 }
             })
-
     }
     else {
         alert("You must be logged in to join the event.");
     }
+}
+
+function cancelOrActiveEvent(e) {
+    const eventId = e.currentTarget.getAttribute('data-cancel-id');
+    const isReactive = e.currentTarget.classList.contains('reactive');
+    
+    fetch(`/event/handle_cancelActive/${eventId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+        body: JSON.stringify({
+            'action': isReactive ? 'reactive' : 'cancel',
+        })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            const cancelOrActiveButton = document.querySelector(`#cancel-btn-${eventId}`);
+            const eventStatus = document.querySelector(`#eventStatus-${eventId}`);
+            if (data.isActive) { 
+                cancelOrActiveButton.classList.remove('reactive')
+                cancelOrActiveButton.classList.add('cancel')
+                cancelOrActiveButton.textContent = 'Cancel this Event'
+                eventStatus.textContent = "ACTIVE!"
+            } else {
+                cancelOrActiveButton.classList.remove('cancel')
+                cancelOrActiveButton.classList.add('reactive')
+                cancelOrActiveButton.textContent = 'Reactive this Event!'
+                eventStatus.textContent = "CANCELEDD!!"
+            }
+        })
+        .catch((error) => console.log(error))
 }

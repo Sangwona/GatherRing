@@ -29,8 +29,11 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
     form_list = [LocationForm1, InterestsForm2, NameForm3, DescriptionForm4]
 
     def done(self, form_list, form_dict, **kwargs):
+        
         instance = Group(
             location=form_dict['0'].cleaned_data['location'],
+            location_lat = form_dict['0'].cleaned_data['location_lat'],
+            location_lng = form_dict['0'].cleaned_data['location_lng'],
             name=form_dict['2'].cleaned_data['name'],
             description=form_dict['3'].cleaned_data['description'],
             creator=self.request.user

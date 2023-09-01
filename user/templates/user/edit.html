@@ -1,5 +1,5 @@
 {% extends "main/layout.html" %}
-
+{% load static %}
 {% block body %}
 
 <form method="POST" action="{% url 'edit_profile' user_id %}" enctype="multipart/form-data">
@@ -8,4 +8,9 @@
     <input type="submit" value="Save" id ="save_userEdit" class="btn btn-primary">
 </form>
 
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'main/location_api.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>
 {% endblock %}

@@ -25,7 +25,7 @@ class Group(models.Model):
     interests = models.ManyToManyField('main.Interest', blank=True, related_name="groups")
     photos = models.ManyToManyField('main.Photo', blank=True, related_name="groups")
     cover_photo = models.ImageField(upload_to="group_cover_photos/", blank=True)
-
+    
     def __str__(self) -> str:
         return self.name
     
