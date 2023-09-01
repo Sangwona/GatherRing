@@ -43,19 +43,19 @@ function joinOrLeaveEvent(e) {
     if (is_authenticated != "True") { 
         alert("You must be logged in to join the event.");
     }
-    fetch(`/event/toggle_attendance/${event_id}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.joined) {
-                    join_btn.textContent = "Leave Event";
-                }
-                else {
-                    join_btn.textContent = "Join Event";
-                }
-                document.querySelector(`.attendee_count`).textContent = `${data.attendee_count}`;        
-            })
-            
-
+    else {
+        fetch(`/event/toggle_attendance/${event_id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.joined) {
+                join_btn.textContent = "Leave Event";
+            }
+            else {
+                join_btn.textContent = "Join Event";
+            }
+            document.querySelector(`.attendee_count`).textContent = `${data.attendee_count}`;        
+        })
+    }
 }
 
 function createOrDeleteEventRequest(e) {
