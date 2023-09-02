@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from .forms import RegisterForm, LoginForm, EditUserForm
@@ -53,6 +54,9 @@ def profile(request, user_id):
 
 @login_required
 def edit(request, user_id):
+    if (request.user.id != user_id):
+        raise PermissionDenied
+    
     user = get_object_or_404(User, pk=user_id)
     
     if (request.method == "POST"):
@@ -66,5 +70,4 @@ def edit(request, user_id):
     
     return render(request, "user/edit.html", {
         "form": editUserForm,
-        "user_id": user_id
     })

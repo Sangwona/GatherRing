@@ -1,13 +1,76 @@
 {% extends "main/layout.html" %}
 {% load static %}
+{% block head %}
+<link href="{% static 'user/profile.css' %}" rel="stylesheet">
+{% endblock %}
 {% block body %}
-
-<form method="POST" action="{% url 'edit_profile' user_id %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save" id ="save_userEdit" class="btn btn-primary">
-</form>
-
+<div class="form-box container-fluid pt-3">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center text-center">
+                <div class="col">
+                    <h6 class="mb-0">Edit Profile</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'edit_profile' user.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h6 class="heading-small text-muted mb-4">Profile Photo</h6>
+                <div class="row">
+                    {% if user.photo %}
+                    <div class="col-md-3">
+                        <img src="{{ user.photo.url }}" class="profile_photo">
+                    </div>
+                    {% endif %}
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label class="form-control-label" for="{{ form.photo.id_for_label }}">Photo</label>
+                            {{ form.photo }}
+                        </div>
+                    </div>
+                </div>
+                <hr class="horizontal dark my-4">
+                <h6 class="heading-small text-muted mb-4">Location</h6>
+                <div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                {{ form.location }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="horizontal dark my-4">
+                <h6 class="heading-small text-muted mb-4">About me</h6>
+                <div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.bio.id_for_label }}">Bio</label>
+                                {{ form.bio }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.interests.id_for_label }}">Interests</label>
+                                {{ form.interests }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="text-center">
+                    <input type="submit" value="Save" class="btn btn-primary">
+                    <a href={% url 'user_profile' user.id %} class="btn btn-danger">Cancel</a>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block script %}

@@ -1,12 +1,15 @@
 {% extends "main/layout.html" %}
-
+{% load static %}
+{% block head %}
+<link href="{% static 'user/profile.css' %}" rel="stylesheet">
+{% endblock %}
 {% block body %}
 <div class="container-fluid">
     <div class="card m-2" >
         <div class="card-body">
             <div>
                 {% if profile_user.photo %}
-                <img src="{{ profile_user.photo.url }}" class="card-img" alt="profile photo"> 
+                <img src="{{ profile_user.photo.url }}" class="card-img profile_photo" alt="profile photo"> 
                 {% endif %} 
             </div>
             <div>
