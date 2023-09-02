@@ -4,13 +4,11 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
 from .models import Event, EventRequest, Status
 
 from group.models import Group
-
 
 # Create your views here.
 @login_required
@@ -64,11 +62,15 @@ def edit(request, event_id):
         if form.is_valid():
             form.save()
             return event_profile(request, event_id)
+        else:
+            print(form.errors)
     else:
         form = EditEventForm(instance=event)
+
     return render(request, "event/edit.html", {
         "form": form,
-        "event_id": event_id
+        "event_id": event_id,
+        "photo_url": event.cover_photo.url if event.cover_photo else None
     })
     
 def event_profile(request, event_id):

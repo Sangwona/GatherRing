@@ -1,15 +1,100 @@
 {% extends "main/layout.html" %}
 {% load static %}
+
 {% block body %}
-
-    <h2>Create Event</h2>
-
-    <form action="{% url 'create_event' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input class="btn btn-primary" type="submit" value="Submit">
-    </form>
-
+<div class="container-fluid pt-3" style="max-width: 900px;">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center text-center">
+                <div class="col">
+                    <h6 class="mb-0">Create Event</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'create_event' %}" method="post">
+                {% csrf_token %}
+                <h6 class="heading-small text-muted mb-4">Event Details</h6>
+                <div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.name.id_for_label }}">Name</label>
+                                {{ form.name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.description.id_for_label }}">Description</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.location.id_for_label }}">Location</label>
+                                {{ form.location }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.start_time.id_for_label }}">Start Time</label>
+                                {{ form.start_time }}
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.end_time.id_for_label }}">End Time</label>
+                                {{ form.end_time }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.interests.id_for_label }}">Tags</label>
+                                {{ form.interests }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="horizontal dark my-4">
+                <h6 class="heading-small text-muted mb-4">Settings</h6>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.join_mode.id_for_label }}">Join Mode</label>
+                                {{ form.join_mode }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.visibility.id_for_label }}">Visibility</label>
+                                {{ form.visibility }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.capacity.id_for_label }}">Capacity</label>
+                                {{ form.capacity }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <input class="btn btn-primary" type="submit" value="Submit">
+                    <a href={% url 'index' %} class="btn btn-danger">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block script %}
