@@ -1,83 +1,138 @@
-<div class="event-profilep-box">
-    <div class="container">
-        <div class="header-info">
-            {% if user.is_authenticated and user == event.creator %}
-            <button data-delete-id="{{ event.id }}" class="btn btn-danger delete-event-btn">Delete Event</button>
-            <a href="{% url 'edit_event' event.id %}" id="edit-btn-{{ event.id }}" class="btn m-2 btn-secondary btn-event-edit" data-edit-id="{{ event.id }}">Edit Event</a>
-                {% if event.status == 'Active' %}
-                <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel cancel" data-cancel-id="{{event.id}}" >Cancel this Event</button>
-                {% else %}
-                <button id="cancel-btn-{{event.id}}" class="btn m-2 btn-secondary btn-event-cancel reactive" data-cancel-id="{{event.id}}"> Reactive this Event! </button>
-                {% endif %}
-            <a href="{% url 'manage_event' event.id %}" class="btn m-2 btn-secondary">Manage Event</a>
-            {% endif %}
-            <h1>{{event.name}}</h1>
-            <span id="eventStatus-{{event.id}}">
-                {% if event.status == 'Active' %}
-                *** Active ***
-                {% else %}
-                CANCELED!!!!!!!
-                {% endif %}
-            </span>
-            <p>Hosted by 
-            {% for host in event.hosts.all %}
-                {% if host.profile_photo %}
-                    <img class="organizer-avatar" src="{{host.profile_photo.url}}" alt="organizer-avatar"> 
-                {% endif %}
-                    <span>{{host.username}}</span>
-            {% endfor %}
-            </p>
-            <div>
-                <span>Author : {{event.creator}} </span>
-            </div>
-            
-            {% if user.is_authenticated and user not in event.attendees.all %}
-                {% if event.join_mode == "Request" %}
-                    {% if request_exists %}
-                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Witdraw join Request</button>
-                    {% else %}
-                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to join</button>
+<div class="py-5 h-100">
+    <div class="row h-100">
+        <!-- Left Side -->
+        <div class="col-9">
+            <div class="card mb-3">
+                <div class="card-body p-4">
+                    <h3 class="card-title">{{ event.name }}</h3>
+                    <p class="card-subtitle mb-2 text-muted">
+                        {{event.location}} &nbsp;
+                        {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}
+                    </p>
+
+                    <!-- Photos -->
+                    {% if event.cover_photo %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <img id="cover-photo" src="{{ event.cover_photo.url }}" class="card-img" alt="event photo">
+                            {% if event.photos.count > 1 %}
+                            <div id="photos_carousel" class="carousel">
+                                <span id="left" class="carousel-control-prev-icon"></span>
+                                <div id="carousel-inner"></div>
+                                <span id="right" class="carousel-control-next-icon"></span>
+                            </div>
+                            {% endif %}
+                            <button class="btn btn-primary photo_upload_button">Upload Photo</button>
+                            <div id="popup-overlay-form" style="display: none;"></div>
+                            <div id="photo-form-popup" style="display: none;">
+                                <form method="post" enctype="multipart/form-data" action="{% url 'add_event_photo' event.id %}">
+                                    {% csrf_token %}
+                                    {{ form }}
+                                    <button type="submit">Upload Photo</button>
+                                    <button id="cancel_form">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
                     {% endif %}
-                {% else %}
-                    <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join this event</button>
-                {% endif %}
-            {% elif user.is_authenticated and user != event.creator %}
-                <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Leave this event</button>
-            {% elif not user.is_authenticated %}
-                {% if event.join_mode == "Request" %}
-                    <button class="request_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Request to join</button>
-                {% else %}
-                    <button class="join_button" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">Join this event</button>
-                {% endif %}
-            {% endif %}
+
+                    <!-- About -->
+                    <div class="row">
+                        <div class="col-md-12">     
+                            <h6>About this Event</h6>
+                            <hr class="mt-0 mb-4">
+                            <p>{{ event.description }}</p>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Location -->
+                    <div class="row">
+                        <div class="col-md-12"> 
+                            <h6>Location</h6>
+                            <hr class="mt-0 mb-4">   
+                            <p>{{ event.location }} </p>
+                            <div id="map" style="width:500px; height:500px;" data-lat="{{ event.location_lat }}" data-lng="{{ event.location_lng }}"></div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Details -->
+                    {% if user in event.hosts.all %}
+                    <div class="row">
+                        <div class="col-md-12">     
+                            <h6>Details</h6>
+                            <hr class="mt-0 mb-4">
+                            {% if event.group %}
+                            <p>Group: {{ event.group.name }} </p>
+                            {% endif %}
+                            <p>Hosted by: 
+                            {% for host in event.hosts.all %}
+                                {{ host.username }},
+                            {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    <br>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <div class="event-details">
-            <div class="row">
-                {% if event.cover_photo %}
-                    <img class="photo-event-profile" src="{{event.cover_photo.url}}" alt="profile photo">
-                {% endif %}
-                <div class="col-12 col-md-4">
-                    <p><strong>Date:</strong><br>{{event.start_time|date:"l, F j"}}</p>
-                </div>
-                <div class="col-12 col-md-4">
-                    <p><strong>Time:</strong><br>{{ event.start_time|time:"h:i A" }} to {{ event.end_time|time:"h:i A" }} PST</p>
-                </div>
-                <div class="col-12 col-md-4">
-                    <p><strong>Location:</strong><br>{{event.location}}</p>
-                </div>
-                <div class="col-12 col-md-4">
-                    <p data-members-id="{{event.id}}" class="view-members-btn">Attendees: <span class="attendee_count">{{ event.attendees.count }}</span></p>
-                </div>
-                <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
-                    <div id="members-popup" style="display: none;">
-                    <ul id="members-list">
-                    </ul>
-                </div>
+        <!-- Right Side -->
+        <div class="col-3">
+            <div class="card mb-3 right-box">
+                <div class="card-body p-4">
+                <!-- Details -->
+                    <p>Date: {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}</p>
+                    <p>Location: {{event.location}}</p>
+                    
+                    <p>Attendees (<span class="attendee_count">{{event.attendees.count}}</span>)
+                    <button class="view-members-btn btn btn-primary">View Attendees</button>
+                    </p>
+                    
+                    
+                    <div class="d-flex justify-content-center">
+                        <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
+                        <div id="members-popup" style="display: none;">
+                            <ul id="members-list"></ul>
+                        </div>
+                    </div>
 
-                <div class="event-description">
-                    Description: {{ event.description }}
+                <!-- Join Buttons -->
+                <div class="row">
+                    <div id="button-div" class="col-md-12" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">
+                        {% if user == event.creator %}
+                            <button class="btn m-2 btn-danger delete-btn">Delete Event</button>
+                            {% if event.status == 'Active' %}
+                            <button class="btn m-2 btn-secondary cancel-event-btn cancel">Cancel Event</button>
+                            {% else %}
+                            <button class="btn m-2 btn-secondary cancel-event-btn reactive">Reactivate Event</button>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if user in event.hosts.all %} 
+                            <a href="{% url 'edit_event' event.id %}" class="btn m-2 btn-secondary">Edit Event</a>
+                            <a href="{% url 'manage_event' event.id %}" class="btn m-2 btn-secondary">Manage Event</a>
+                        {% endif %}
+
+                        {% if user not in event.attendees.all %}
+                            {% if event.join_mode == "Request" %}
+                                {% if request_exists %}
+                                <button class="btn m-2 btn-secondary request_button" >Witdraw join Request</button>
+                                {% else %}
+                                <button class="btn m-2 btn-primary request_button" >Request to join</button>
+                                {% endif %}
+                            {% else %}
+                            <button class="btn m-2 btn-primary join_button" >Join this event</button>
+                            {% endif %}
+                        {% elif user != event.creator %}
+                            <button class="btn m-2 btn-secondary join_button" >Leave this event</button>
+                        {% endif %}
+                    </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>

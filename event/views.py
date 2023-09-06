@@ -1,14 +1,15 @@
 import json 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 
 from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
 from .models import Event, EventRequest, Status
-
 from group.models import Group
+from main.models import Photo
+from main.forms import AddPhotoForm
 
 # Create your views here.
 @login_required
@@ -83,7 +84,8 @@ def event_profile(request, event_id):
 
     return render(request, "event/profile.html", {
         "event" : event,
-        "request_exists" : request_exists
+        "request_exists" : request_exists,
+        "form": AddPhotoForm()
     })
 
 def all(request):
@@ -180,3 +182,30 @@ def change_status_event(request, event_id):
         }
     return JsonResponse(data)
 
+@login_required
+def add_photo(request, event_id):
+    if request.method == 'POST':
+        event = Event.objects.get(pk=event_id)
+        if request.user in event.attendees.all():
+            photo = Photo.objects.create(photo=request.FILES['photo'], uploaded_by=request.user)
+            photo.related_event = event
+            photo.save()
+            event.photos.add(photo)
+            return redirect("event_profile", event_id)
+        else:
+            raise PermissionDenied
+        
+def is_attendee(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    is_attendee = False
+    if request.user in event.attendees.all():
+        is_attendee = True
+    
+    return JsonResponse({"is_attendee": is_attendee})
+
+def get_photos(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    data = {
+        'photos': [photo.photo.url for photo in event.photos.all()]
+    }
+    return JsonResponse(data)

@@ -1,24 +1,96 @@
 document.addEventListener('DOMContentLoaded', function() {
-    join_btn = document.querySelector('.join_button');
-    request_btn = document.querySelector('.request_button');
+    const event_id = document.querySelector('#button-div').getAttribute('data-event-id');
+    const user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
+
+    const join_btn = document.querySelector('.join_button');
+    const request_btn = document.querySelector('.request_button');
+    const cancel_btn = document.querySelector('.cancel-event-btn');
+
     if (join_btn) {
-        join_btn.onclick = joinOrLeaveEvent;
+        join_btn.addEventListener('click', () => joinOrLeaveEvent(event_id, user_is_authenticated));
     }
     if (request_btn) {
-        request_btn.onclick = createOrDeleteEventRequest;
+        request_btn.addEventListener('click', () => createOrDeleteEventRequest(event_id, user_is_authenticated));
     }
-    document.querySelectorAll('.view-members-btn').forEach(btn => {
-        btn.addEventListener('click', showEventAttendees);
-    });
-    document.querySelectorAll('.btn-event-cancel').forEach(btn => {
-        btn.addEventListener('click', cancelOrActiveEvent)
-    })
+    if (cancel_btn) {
+        cancel_btn.addEventListener('click', (e) => cancelOrActiveEvent(e, event_id))
+    }
+
+    document.querySelector('.view-members-btn').addEventListener('click', () => showEventAttendees(event_id));
+    document.querySelector('.photo_upload_button').addEventListener('click', () => showPhotoForm(event_id));
+    document.querySelector('#cancel_form').addEventListener('click', cancelPhotoForm);
+
+    initMap();
+    load_photos(event_id);
 });
 
-function showEventAttendees(e) {
+function joinOrLeaveEvent(event_id, user_is_authenticated) {
+    if (user_is_authenticated != "True") { 
+        alert("You must be logged in to join the event.");
+    }
+    else {
+        fetch(`/event/toggle_attendance/${event_id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.joined) {
+                join_btn.textContent = "Leave Event";
+            }
+            else {
+                join_btn.textContent = "Join Event";
+            }
+            document.querySelector(`.attendee_count`).textContent = `${data.attendee_count}`;        
+        })
+    }
+}
 
-    const eventID = e.currentTarget.getAttribute('data-members-id');
-    fetch(`/event/attendees/${eventID}/`)
+function createOrDeleteEventRequest(event_id, user_is_authenticated) {
+    if (user_is_authenticated != "True") { 
+        alert("You must be logged in to join the event.");
+    }
+    else {
+        fetch(`/event/toggle_request/${event_id}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.requested) {
+                    request_btn.textContent = "Withdraw Request";
+                }
+                else {
+                    request_btn.textContent = "Request to Join";
+                }
+            })
+    }
+}
+
+function cancelOrActiveEvent(e, event_id) {
+    const isReactive = e.currentTarget.classList.contains('reactive');
+    
+    fetch(`/event/change_status/${event_id}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+        body: JSON.stringify({
+            'action': isReactive ? 'reactive' : 'cancel',
+        })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.isActive) { 
+                cancel_btn.classList.remove('reactive')
+                cancel_btn.classList.add('cancel')
+                cancel_btn.textContent = 'Cancel Event'
+            } else {
+                cancel_btn.classList.remove('cancel')
+                cancel_btn.classList.add('reactive')
+                cancel_btn.textContent = 'Reactivate Event'
+            }
+        })
+        .catch((error) => console.log(error))
+}
+
+function showEventAttendees(event_id) {
+    fetch(`/event/attendees/${event_id}/`)
         .then(res => res.json())
         .then(members => {
             const membersList = document.querySelector('#members-list');
@@ -39,78 +111,87 @@ function hidePopup() {
     document.querySelector('#members-popup').style.display = 'none';
 }
 
-function joinOrLeaveEvent(e) {
-    const event_id = e.currentTarget.getAttribute('data-event-id');
-    const is_authenticated = e.currentTarget.getAttribute('data-is-authenticated');
+function showPhotoForm(event_id) {
+    fetch(`/event/is_attendee/${event_id}/`)
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.is_attendee) {
+            document.querySelector('#popup-overlay-form').style.display = 'block';
+            document.querySelector('#photo-form-popup').style.display = 'block';
+        }
+        else {
+            alert("You must be an attendee to post a photo.");
+        }
+    })
+}
 
-    if (is_authenticated != "True") { 
-        alert("You must be logged in to join the event.");
-    }
-    else {
-        fetch(`/event/toggle_attendance/${event_id}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.joined) {
-                join_btn.textContent = "Leave Event";
-            }
+function cancelPhotoForm() {
+    document.querySelector('#popup-overlay-form').style.display = 'none';
+    document.querySelector('#photo-form-popup').style.display = 'none';
+}
+
+function initMap() {
+    const map_div = document.querySelector('#map');
+    if (map_div) {
+        const lat = parseFloat(map_div.getAttribute('data-lat'));
+        const lng = parseFloat(map_div.getAttribute('data-lng'));
+
+        const map = new google.maps.Map(map_div, {
+            center: { lat: lat, lng: lng },
+            zoom: 16,
+            controlSize: 22,
+        });
+
+        const geocoder = new google.maps.Geocoder();
+        const infowindow = new google.maps.InfoWindow();
+        const latlng = {
+            lat: lat,
+            lng: lng,
+          };
+
+
+        geocoder.geocode({ location: latlng })
+        .then((response) => {
+            if (response.results[0]) {
+                const address = response.results[0].formatted_address;
+                const marker = new google.maps.Marker({
+                        position: latlng,
+                        map: map,
+                        url: `https://www.google.com/maps/search/?api=1&query=${address}`
+                });
+        
+                google.maps.event.addListener(marker, 'click', function() {window.location.href = marker.url;});
+        
+                    infowindow.setContent(address);
+                    infowindow.open(map, marker);
+            } 
             else {
-                join_btn.textContent = "Join Event";
+              window.alert("No results found");
             }
-            document.querySelector(`.attendee_count`).textContent = `${data.attendee_count}`;        
         })
+        .catch((e) => window.alert("Geocoder failed due to: " + e));
     }
 }
 
-function createOrDeleteEventRequest(e) {
-    const event_id = e.currentTarget.getAttribute('data-event-id');
-    const is_authenticated = e.currentTarget.getAttribute('data-is-authenticated');
+function load_photos(event_id) {
+    const carousel = document.querySelector('#photos_carousel');
+    const carouselInner = document.querySelector("#carousel-inner");
 
-    if (is_authenticated == "True") {
-        fetch(`/event/toggle_request/${event_id}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.requested) {
-                    request_btn.textContent = "Withdraw Request";
-                }
-                else {
-                    request_btn.textContent = "Request to Join";
-                }
+    fetch(`/event/get_photos/${event_id}`)
+    .then(response => response.json())
+    .then(data => {
+        data.photos.forEach((url, index) => {
+            carouselInner.innerHTML += `
+                <img class="carousel-img" src="${url}" alt="Image ${index + 1}" />
+            `;
+        });   
+    })
+    .then (() => {
+        document.querySelectorAll('#photos_carousel span').forEach(span => {
+            span.addEventListener('click', () => {
+                const imageWidth = carousel.querySelectorAll("img")[0].clientWidth + 10;
+                carouselInner.scrollLeft += span.id == "left" ? -imageWidth : +imageWidth;
             })
-    }
-    else {
-        alert("You must be logged in to join the event.");
-    }
-}
-
-function cancelOrActiveEvent(e) {
-    const eventId = e.currentTarget.getAttribute('data-cancel-id');
-    const isReactive = e.currentTarget.classList.contains('reactive');
-    
-    fetch(`/event/change_status/${eventId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': CSRF_TOKEN,
-        },
-        body: JSON.stringify({
-            'action': isReactive ? 'reactive' : 'cancel',
         })
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            const cancelOrActiveButton = document.querySelector(`#cancel-btn-${eventId}`);
-            const eventStatus = document.querySelector(`#eventStatus-${eventId}`);
-            if (data.isActive) { 
-                cancelOrActiveButton.classList.remove('reactive')
-                cancelOrActiveButton.classList.add('cancel')
-                cancelOrActiveButton.textContent = 'Cancel this Event'
-                eventStatus.textContent = "ACTIVE!"
-            } else {
-                cancelOrActiveButton.classList.remove('cancel')
-                cancelOrActiveButton.classList.add('reactive')
-                cancelOrActiveButton.textContent = 'Reactive this Event!'
-                eventStatus.textContent = "CANCELEDD!!"
-            }
-        })
-        .catch((error) => console.log(error))
+    })
 }
