@@ -35,14 +35,14 @@
         {% endfor %}
     </p>
     
-    <div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center" data-group-id="{{group.id}}">
         {% if user.is_authenticated %}
             {% if user in group.members.all %}
             <a class="btn btn-secondary m-2" href="{% url 'create_event_ingroup' group.id %}">Create Event</a>
-                {% if user is not group.creator %}
+                {% if user not in group.creator %}
                 <button class="btn btn-secondary m-2 join_button" data-group-id="{{group.id}}" data-is-authenticated="{{ user.is_authenticated }}">Leave Group</button>
                 {% else %}
-                <a class="btn btn-danger m-2" href="#">Delete Group</a>
+                <button id="btn-delete" class="btn btn-danger m-2" href="{% url 'delete_group' group.id %}">Delete Group</button>
                 {% endif %}
                 {% if user in group.admins.all %}
                     <a class="btn btn-secondary m-2" href="{% url 'manage_group' group.id %}">Manage Group</a>

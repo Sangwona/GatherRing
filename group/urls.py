@@ -11,4 +11,5 @@ urlpatterns = [
     path("toggle_request/<int:group_id>/", views.toggle_request, name="toggle_group_request"),
     path("members/<int:group_id>/", views.show_group_members, name="show_group_members"),
     path("handle_request/<int:request_id>/", views.handle_request, name="handle_group_request"),
+    path("delete/<int:group_id>/", views.delete, name="delete_group"),
 ]

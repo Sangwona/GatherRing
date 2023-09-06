@@ -132,3 +132,15 @@ def handle_request(request, request_id):
         return JsonResponse({"message": "success"}, status=201)      
     else:
         raise PermissionDenied
+
+@login_required
+def delete(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if request.user == group.creator:
+        if request.method == 'POST':
+            group.delete()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'failure'})
+    else:
+        raise PermissionDenied

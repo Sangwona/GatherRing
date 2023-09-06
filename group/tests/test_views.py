@@ -393,3 +393,60 @@ class HandleRequestViewTest(TestCase):
 
         # Check that user was not added to attendees
         self.assertFalse(self.non_admin_user in self.group.members.all())
+
+class DeleteGroupViewTestCase(TestCase):
+    def setUp(self): 
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username='testuser',
+            password='testpassword'
+        )
+        self.group = Group.objects.create(
+            name="Test Group",
+            description="This is a test group",
+            location="Test Location",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+
+    def test_delete_group_success(self):
+        # Log in the user
+        self.client.login(username='testuser', password='testpassword')
+
+        # Send a POST request to delete the group
+        response = self.client.post(reverse('delete_group', args=[self.group.id]))
+
+        # Check if the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the group was deleted
+        self.assertFalse(Group.objects.filter(pk=self.group.id).exists())
+
+    def test_delete_group_failure(self):
+        # Log in a different user (not the creator of the group)
+        self.user2 = self.User.objects.create_user(
+            username='testuser2',
+            password='testpassword2'
+        )
+        self.client.login(username='testuser2', password='testpassword2')
+
+        # Send a POST request to delete the group
+        response = self.client.post(reverse('delete_group', args=[self.group.id]))
+
+        # Check if the response status code is 405 (Forbidden)
+        self.assertEqual(response.status_code, 403)
+
+        # Check if the group still exists
+        self.assertTrue(Group.objects.filter(pk=self.group.id).exists())
+
+    def test_delete_group_not_logged_in(self):
+        # Send a POST request to delete the group without logging in
+        response = self.client.post(reverse('delete_group', args=[self.group.id]))
+
+        # Check if the response status code is 302 (Redirect to login)
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the group still exists
+        self.assertTrue(Group.objects.filter(pk=self.group.id).exists())
