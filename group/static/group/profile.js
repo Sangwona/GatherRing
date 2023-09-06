@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
         request_btn.onclick = createOrDeleteGroupRequest;
     }
     viewMember_btn.onclick = showGroupMembers;
-
-    delete_btn.onclick = deleteGroup;
+    if (delete_btn) {
+        delete_btn.onclick = deleteGroup;
+    }
 });
 
 function showGroupMembers(e) {
