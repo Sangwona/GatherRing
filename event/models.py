@@ -16,12 +16,12 @@ class Status(models.TextChoices):
 class Event(models.Model):
     cover_photo = models.ImageField(upload_to="event_cover_photos/", blank=True)
     name = models.CharField(max_length=64)
-    description = models.TextField(max_length=500)
+    description = models.TextField()
     visibility = models.CharField(max_length=20, choices=EventVisibility.choices, default=EventVisibility.PUBLIC)
     join_mode = models.CharField(max_length=10, choices=JoinMode.choices, default=JoinMode.DIRECT)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     capacity = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(1000)])
-    location = models.CharField(max_length=64)
+    location = models.CharField(max_length=256)
     location_lat = models.FloatField(null=True, blank=True)
     location_lng = models.FloatField(null=True, blank=True)
     
