@@ -1,17 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    join_btn = document.querySelector('.join_button');
-    request_btn = document.querySelector('.request_button');
+    const join_btn = document.querySelector('.join_button');
+    const request_btn = document.querySelector('.request_button');
+    const viewMember_btn = document.querySelector('.view-members-btn');
+    const delete_btn = document.querySelector('#btn-delete');
+
     if (join_btn) {
         join_btn.onclick = joinOrLeaveGroup;
     }
     if (request_btn) {
         request_btn.onclick = createOrDeleteGroupRequest;
     }
+    viewMember_btn.onclick = showGroupMembers;
 
-    document.querySelectorAll('.view-members-btn').forEach(btn => {
-        btn.addEventListener('click', showGroupMembers);
-    });
+    delete_btn.onclick = deleteGroup;
 });
 
 function showGroupMembers(e) {
@@ -79,4 +81,32 @@ function createOrDeleteGroupRequest(e) {
     else {
         alert("You must be logged in to join the group.");
     }
+}
+
+function deleteGroup (e) {
+    const confirmMessage = "Are you sure you want to delete this group?";
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    const parent_div = e.currentTarget.parentElement;
+    const group_id = parent_div.getAttribute('data-group-id');
+        fetch(`/group/delete/${group_id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN,
+            },
+        })
+        .then(response => {
+            if (response.status === 200) {
+                // Request was successful
+                window.location.href = '/';
+            } else if (response.status === 403) {
+                // Permission denied
+                alert("Permission Denied");
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
 }
