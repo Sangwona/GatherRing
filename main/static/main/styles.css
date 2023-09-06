@@ -4,22 +4,52 @@ html, body {
     font-family: 'Noto Sans', sans-serif;
 }
 
+#sidebar {
+    height: 100vh;
+    width: 150px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    transition: all 0.3s;
+}
+
+.search-box, .brand-box {
+    text-align:center
+}
+
+.search{
+    width: 90%;
+}
+
+#sidebar ul li a {
+    text-align: left;
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+    border-radius: 6px;
+}
+
+#main {
+    width: calc(100% - 150px);
+    min-height: 100vh;
+    transition: all 0.3s;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.main-content {
+    max-width: 1100px;
+    margin: auto;
+}
+
 .search-group {
     border: 3px solid aquamarine;
 }
 
 .search-event {
     border: 3px solid blue;
-}
-
-.view-members-btn {
-    cursor: pointer;
-    color:blue;
-    border-radius: 4px;
-}
-
-.view-members-btn:hover {
-    background-color: rgb(241, 237, 233);
 }
 
 #popup-overlay, #popup-overlay-form {
