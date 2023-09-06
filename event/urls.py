@@ -14,4 +14,7 @@ urlpatterns = [
     path("attendees/<int:event_id>/", views.show_event_attendees, name="show_event_attendees"),
     path("handle_request/<int:request_id>/", views.handle_request, name="handle_event_request"),
     path("change_status/<int:event_id>/", views.change_status_event, name="change_status_event"),
+    path("add_photo/<int:event_id>/", views.add_photo, name="add_event_photo"),
+    path("is_attendee/<int:event_id>/", views.is_attendee, name="event_is_attendee"),
+    path("get_photos/<int:event_id>", views.get_photos, name="get_event_photos"),
 ]
