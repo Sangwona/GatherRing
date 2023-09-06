@@ -9,57 +9,62 @@
         {% block head %}{% endblock %}
     </head>
     <body>
-        <div class="container-fluid h-100">
-            <div class="row h-100 justify-content-start">
-                <!-- Sidebar -->
-                <nav class="col-2 navigation bg-light">
+        <div>
+            <!-- Sidebar -->
+            <nav id="sidebar" class="navigation bg-light">
+                <div class="brand-box">
                     <a class="navbar-brand" href="{% url 'index' %}">GatherRing</a>
-                    <div class="searchBox">
-                        <form id="searchForm" action="{% url 'search' %}" method="get">
-                            <input class="search" type="text" name="q">
-                            <button type="submit" id = "btn-search">Search</button>
-                        </form>
+                </div>
+                
+                <div class="search-box">
+                    <form action="{% url 'search' %}" method="get">
+                        <input class="search" type="text" name="q">
+                        <button class="search-btn" type="submit" id = "btn-search">Search</button>
+                    </form>
                         {% comment %} <img id="search-btn" src="{% static 'resource/magnifying-glass-solid.svg' %}" alt="search button"> {% endcomment %}
-                    </div>
-                    <div>
-                        <ul class="navbar-nav mr-auto">
-                        {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'user_profile' user.id%}"><strong>{{ user.username }}</strong></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'register' %}">Register</a>
-                            </li>
-                        {% endif %}
-                            <li class="nav_item">
-                                <a class="nav-link" href="{% url 'create_group' %}">Create Group</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'create_event' %}">Create Event</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'all_groups' %}">All Groups</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'all_events' %}">All Events</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <!--Main body-->
-                <div class="col-8" style="text-align: justify;">
-                    {% block body %}
-                    {% endblock %}
+                </div>
+                <div>
+                    <ul class="navbar-nav mr-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_profile' user.id%}"><strong>{{ user.username }}</strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                        <li class="nav_item">
+                            <a class="nav-link" href="{% url 'create_group' %}">Create Group</a>                            
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'create_event' %}">Create Event</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'all_groups' %}">All Groups</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'all_events' %}">All Events</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!--Main body-->
+            <div id="main">
+                <div class="main-content">
+                {% block body %}
+                {% endblock %}
                 </div>
             </div>
-        </div>  
+        </div>
+
         <script>var CSRF_TOKEN = '{{ csrf_token }}';</script>        
         {% block script %}
         {% endblock %}
