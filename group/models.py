@@ -11,10 +11,10 @@ class GroupVisibility(models.TextChoices):
 class Group(models.Model):  
     name = models.CharField(max_length=64)
     visibility = models.CharField(max_length=16, choices=GroupVisibility.choices, default=GroupVisibility.PUBLIC)
-    location = models.CharField(max_length=64)
+    location = models.CharField(max_length=256)
     location_lat = models.FloatField(null=True, blank=True)
     location_lng = models.FloatField(null=True, blank=True)
-    description = models.TextField(max_length=500)
+    description = models.TextField()
     join_mode = models.CharField(max_length=10, choices=JoinMode.choices, default=JoinMode.DIRECT)
     capacity = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(1000)], default=50)
     admins = models.ManyToManyField('user.User', related_name="administrating_groups")
