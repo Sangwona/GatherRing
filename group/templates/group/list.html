@@ -1,6 +1,6 @@
-<div class="container">
+<div class="container group-tile">
     {% for group in groups %}
-    <a href="{% url 'group_profile' group.id %}" class="card item">
+    <a href="{% url 'group_profile' group.id %}" class="card">
         {% if group.cover_photo %}
             <img src="{{ group.cover_photo.url }}" class="card-img-top" alt="group_cover_image"> 
         {% endif %}     
