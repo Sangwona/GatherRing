@@ -1,4 +1,4 @@
-<div class="container group-tile">
+<div class="container tile">
     {% for group in groups %}
     <a href="{% url 'group_profile' group.id %}" class="card">
         {% if group.cover_photo %}
