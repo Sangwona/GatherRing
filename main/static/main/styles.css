@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 html, body {
     height: 100%;
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Roboto', 'Noto Sans', sans-serif;
+    background-color: #F8F6F4;
 }
 
 #sidebar {
+    padding-left: 12px;
     height: 100vh;
     width: 150px;
     position: fixed;
@@ -12,10 +14,17 @@ html, body {
     left: 0;
     z-index: 999;
     transition: all 0.3s;
+    background-color: #b1e7e7;
+    border-radius: 12px;
+    box-shadow: 2px 2px 3px rgb(198, 225, 234);
 }
 
 .search-box, .brand-box {
     text-align:center
+}
+
+.navbar-brand {
+    color:black;
 }
 
 .search{
@@ -28,6 +37,15 @@ html, body {
     font-size: 1.1em;
     display: block;
     border-radius: 6px;
+    color:rgb(0, 0, 0);
+}
+.nav-item {
+    border-radius: 12px;
+    transition: all ease-in-out .1s;
+}
+.nav-item:hover {
+    background-color: rgb(198, 225, 234);
+    transform: scale(1.014);
 }
 
 #main {

@@ -7,7 +7,7 @@
 
 {% block body %}
     {% if group.cover_photo %}
-        <img src="{{ group.cover_photo.url }}" alt="group photo">
+        <img class="group-profile-photo" src="{{ group.cover_photo.url }}" alt="group photo">
     {% endif %}
 
     <h1>{{ group.name }}</h1>
