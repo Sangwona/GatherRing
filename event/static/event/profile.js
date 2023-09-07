@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("loadded!");
     const event_id = document.querySelector('#button-div').getAttribute('data-event-id');
     const user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
 
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const delete_btn = document.querySelector('.delete-btn');
     const upload_btn = document.querySelector('.photo_upload_button');
     const upload_cancel_btn = document.querySelector('#cancel_form');
-    
+    const view_member_btn = document.querySelector('.view-members-btn');
     if (join_btn) {
         join_btn.addEventListener('click', () => joinOrLeaveEvent(event_id, user_is_authenticated));
     }
@@ -19,16 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cancel_btn) {
         cancel_btn.addEventListener('click', (e) => cancelOrActiveEvent(e, event_id));
     }
-    if (upload_btn) {
-        upload_btn.addEventListener('click', () => showPhotoForm(event_id));
-    }
-    if (upload_cancel_btn) {
-        upload_cancel_btn.addEventListener('click', cancelPhotoForm);
-    }
     if (delete_btn) {
         delete_btn.addEventListener('click', () => deleteEvent(event_id));
     }
-    document.querySelector('.view-members-btn').addEventListener('click', () => showEventAttendees(event_id));
+
+    upload_btn.addEventListener('click', () => showPhotoForm(event_id));
+    upload_cancel_btn.addEventListener('click', cancelPhotoForm);
+    view_member_btn.addEventListener('click', () => showEventAttendees(event_id));
 
     initMap();
     load_photos(event_id);
@@ -145,8 +141,6 @@ function initMap() {
     if (map_div) {
         const lat = parseFloat(map_div.getAttribute('data-lat'));
         const lng = parseFloat(map_div.getAttribute('data-lng'));
-        console.log(lat);
-        console.log(lng);
         const map = new google.maps.Map(map_div, {
             center: { lat: lat, lng: lng },
             zoom: 16,
@@ -208,7 +202,6 @@ function load_photos(event_id) {
 }
 
 function deleteEvent (event_id) {
-    console.log("start delete event");
     const confirmMessage = "Are you sure you want to delete this event?";
     if (!confirm(confirmMessage)) {
         return;
