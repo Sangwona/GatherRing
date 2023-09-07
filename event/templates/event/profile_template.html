@@ -11,10 +11,11 @@
                     </p>
 
                     <!-- Photos -->
-                    {% if event.cover_photo %}
                     <div class="row">
                         <div class="col-md-12">
+                            {% if event.cover_photo %}
                             <img id="cover-photo" src="{{ event.cover_photo.url }}" class="card-img" alt="event photo">
+                            {% endif %}
                             {% if event.photos.count > 1 %}
                             <div id="photos_carousel" class="carousel">
                                 <span id="left" class="carousel-control-prev-icon"></span>
@@ -35,7 +36,6 @@
                         </div>
                     </div>
                     <br>
-                    {% endif %}
 
                     <!-- About -->
                     <div class="row">
@@ -52,7 +52,7 @@
                         <div class="col-md-12"> 
                             <h6>Location</h6>
                             <hr class="mt-0 mb-4">   
-                            <p>{{ event.location }} </p>
+                            <p>{{ event.location }}</p>
                             <div id="map" style="width:500px; height:500px;" data-lat="{{ event.location_lat }}" data-lng="{{ event.location_lng }}"></div>
                         </div>
                     </div>

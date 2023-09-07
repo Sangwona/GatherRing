@@ -209,3 +209,15 @@ def get_photos(request, event_id):
         'photos': [photo.photo.url for photo in event.photos.all()]
     }
     return JsonResponse(data)
+
+@login_required
+def delete(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if request.user == event.creator:
+        if request.method == 'POST':
+            event.delete()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'failure'})
+    else:
+        raise PermissionDenied

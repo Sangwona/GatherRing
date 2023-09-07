@@ -589,3 +589,63 @@ class ChangeStatusEventTestCase(TestCase):
         # Check if the response data contains 'isActive' as False
         response_data = json.loads(response.content)
         self.assertFalse(response_data['isActive'])
+
+class DeleteEventViewTestCase(TestCase):
+    def setUp(self): 
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username='testuser',
+            password='testpassword'
+        )
+        self.event = Event.objects.create(
+            name= 'Test Event',
+            description= 'This is a test event',
+            visibility= EventVisibility.PUBLIC,
+            join_mode= JoinMode.DIRECT,
+            status= Status.ACTIVE,
+            capacity= 50,
+            location= 'Test Location',
+            start_time= timezone.now(),
+            end_time= timezone.now() + timezone.timedelta(hours=2),
+            creator=self.user
+        )
+
+    def test_delete_event_success(self):
+        # Log in the user
+        self.client.login(username='testuser', password='testpassword')
+
+        # Send a POST request to delete the event
+        response = self.client.post(reverse('delete_event', args=[str(self.event.id)]))
+
+        # Check if the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the event was deleted
+        self.assertFalse(Event.objects.filter(pk=self.event.id).exists())
+
+    def test_delete_event_failure(self):
+        # Log in a different user (not the creator of the event)
+        self.user2 = self.User.objects.create_user(
+            username='testuser2',
+            password='testpassword2'
+        )
+        self.client.login(username='testuser2', password='testpassword2')
+
+        # Send a POST request to delete the event
+        response = self.client.post(reverse('delete_event', args=[str(self.event.id)]))
+
+        # Check if the response status code is 405 (Forbidden)
+        self.assertEqual(response.status_code, 403)
+
+        # Check if the event still exists
+        self.assertTrue(Event.objects.filter(pk=self.event.id).exists())
+
+    def test_delete_event_not_logged_in(self):
+        # Send a POST request to delete the event without logging in
+        response = self.client.post(reverse('delete_event', args=[str(self.event.id)]))
+
+        # Check if the response status code is 302 (Redirect to login)
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the event still exists
+        self.assertTrue(Event.objects.filter(pk=self.event.id).exists())
