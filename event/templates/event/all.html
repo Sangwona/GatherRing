@@ -1,4 +1,10 @@
 {% extends "main/layout.html" %}
+{% load static %}
+
+{% block head %}
+<link href="{% static 'event/styles.css' %}" rel="stylesheet">
+<link href="{% static 'main/tile_style.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
 

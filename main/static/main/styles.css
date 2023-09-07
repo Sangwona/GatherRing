@@ -5,6 +5,26 @@ html, body {
     background-color: #F8F6F4;
 }
 
+@supports not (gap: 1px) {
+    body {
+      padding-top: 2em;
+    }
+  
+    body::before {
+      content: "Your browser doesn't support gap property";
+      display: block;
+      color: #e43;
+      font-weight: bold;
+      position: fixed;
+      top: 1.5em;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      text-align: center;
+    }
+}
+  
+
 #sidebar {
     padding-left: 12px;
     height: 100vh;
