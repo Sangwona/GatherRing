@@ -1,27 +1,41 @@
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-
+from django.utils import timezone
 from formtools.wizard.views import SessionWizardView
-from django.core.exceptions import PermissionDenied
 
 from .forms import *
 from .models import GroupRequest
+from event.models import Status, EventVisibility
+from main.models import Photo
+from main.forms import AddPhotoForm
 
 # Create your views here.
 
 def profile(request, group_id):
     group = Group.objects.get(pk=group_id)
+
+    request_exists = False
     if request.user.is_authenticated:
         request_exists = group.requests.filter(user=request.user).exists()
+
+    if request.user in group.members.all():
+        past_events = group.events.filter(start_time__lt = timezone.now())
+        upcoming_events = group.events.filter(start_time__gt = timezone.now(), status = Status.ACTIVE)
     else:
-        request_exists = False
+        past_events = group.events.filter(start_time__lt = timezone.now(), visibility = EventVisibility.PUBLIC)
+        upcoming_events = group.events.filter(start_time__gt = timezone.now(), status = Status.ACTIVE, visibility = EventVisibility.PUBLIC)
 
     return render(request, "group/profile.html", {
         'group': group,
-        'request_exists': request_exists
+        'request_exists': request_exists,
+        "form": AddPhotoForm(),
+        "past_events" : past_events, 
+        "upcoming_events": upcoming_events,
+        "first_four_members": group.members.all()[:4]
     })
 
 class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
@@ -144,3 +158,31 @@ def delete(request, group_id):
             return JsonResponse({'status': 'failure'})
     else:
         raise PermissionDenied
+
+@login_required
+def add_photo(request, group_id):
+    if request.method == 'POST':
+        group = get_object_or_404(Group, pk=group_id)
+        if request.user in group.members.all():
+            photo = Photo.objects.create(photo=request.FILES['photo'], uploaded_by=request.user)
+            photo.related_group = group
+            photo.save()
+            group.photos.add(photo)
+            return redirect("group_profile", group_id)
+        else:
+            raise PermissionDenied
+        
+def is_member(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    is_member = False
+    if request.user in group.members.all():
+        is_member = True
+    
+    return JsonResponse({"is_member": is_member})
+
+def get_photos(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    data = {
+        'photos': [photo.photo.url for photo in group.photos.all()]
+    }
+    return JsonResponse(data)

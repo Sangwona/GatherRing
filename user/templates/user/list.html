@@ -1,0 +1,16 @@
+<div class="user-tile container">
+    {% for profile_user in users %}
+    <div class="card p-2" >
+        {% if profile_user.photo %}
+            <img src="{{ profile_user.photo.url }}" class="card-img" alt="profile photo">
+        {% else %}
+            <i class="card-img fa-regular fa-user"></i>
+        {% endif %}
+        <div class="card-body">
+            <a class="card-title" href="{% url 'user_profile' profile_user.id %}">{{ profile_user.username }}</a>
+        </div>
+    </div>
+    {% empty %}
+    <span>No Users</span>
+    {% endfor %}
+</div>
