@@ -1,12 +1,34 @@
-<div class="list-group">
+<div class="container">
     {% for group in groups %}
-    <a href="{% url 'group_profile' group.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+    <a href="{% url 'group_profile' group.id %}" class="card item">
+            {% comment %} <div class="group-list-photo-box"> {% endcomment %}
+            {% if group.cover_photo %}
+                <img src="{{ group.cover_photo.url }}" class="card-img-top" alt="group_cover_image"> 
+            {% endif %}     
+            {% comment %} </div> {% endcomment %}
+            <div class="card-body">
+                <h5 class="card-title">{{ group.name | truncatewords:10 }}</h5>
+                <p class="card-text">
+                    <p><small class="text-muted">Location: {{ group.location }}</small></p>
+                    <p><small class="text-muted">member count {{ group.members.count }}</small></p>
+                </p>
+            </div>
+        
+    </a>
+    {% empty %}
+    <div>No Groups</div>
+    {% endfor %}   
+</div>
+
+{% comment %} <div class="card-group">
+    {% for group in groups %}
+    <a href="{% url 'group_profile' group.id %}" class="card">
         <div class="col-3 list-photo">
             {% if group.cover_photo %}
                 <img src="{{ group.cover_photo.url }}" class="card-img" alt="group_cover_image"> 
             {% endif %}                   
         </div>
-        <div class="col-9">
+        <div class="">
             <div class="card-body">
                 <h5 class="card-title">{{ group.name }}</h5>
                 <p class="card-text">{{ group.description | truncatewords:50 }}</p>
@@ -22,3 +44,4 @@
     <div>No Groups</div>
     {% endfor %}
 </div>
+ {% endcomment %}
