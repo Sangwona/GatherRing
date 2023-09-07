@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("loadded!");
     const event_id = document.querySelector('#button-div').getAttribute('data-event-id');
     const user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
 
     const join_btn = document.querySelector('.join_button');
     const request_btn = document.querySelector('.request_button');
     const cancel_btn = document.querySelector('.cancel-event-btn');
-
+    const delete_btn = document.querySelector('.delete-btn');
+    const upload_btn = document.querySelector('.photo_upload_button');
+    const upload_cancel_btn = document.querySelector('#cancel_form');
+    
     if (join_btn) {
         join_btn.addEventListener('click', () => joinOrLeaveEvent(event_id, user_is_authenticated));
     }
@@ -13,12 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
         request_btn.addEventListener('click', () => createOrDeleteEventRequest(event_id, user_is_authenticated));
     }
     if (cancel_btn) {
-        cancel_btn.addEventListener('click', (e) => cancelOrActiveEvent(e, event_id))
+        cancel_btn.addEventListener('click', (e) => cancelOrActiveEvent(e, event_id));
     }
-
+    if (upload_btn) {
+        upload_btn.addEventListener('click', () => showPhotoForm(event_id));
+    }
+    if (upload_cancel_btn) {
+        upload_cancel_btn.addEventListener('click', cancelPhotoForm);
+    }
+    if (delete_btn) {
+        delete_btn.addEventListener('click', () => deleteEvent(event_id));
+    }
     document.querySelector('.view-members-btn').addEventListener('click', () => showEventAttendees(event_id));
-    document.querySelector('.photo_upload_button').addEventListener('click', () => showPhotoForm(event_id));
-    document.querySelector('#cancel_form').addEventListener('click', cancelPhotoForm);
 
     initMap();
     load_photos(event_id);
@@ -135,7 +145,8 @@ function initMap() {
     if (map_div) {
         const lat = parseFloat(map_div.getAttribute('data-lat'));
         const lng = parseFloat(map_div.getAttribute('data-lng'));
-
+        console.log(lat);
+        console.log(lng);
         const map = new google.maps.Map(map_div, {
             center: { lat: lat, lng: lng },
             zoom: 16,
@@ -194,4 +205,31 @@ function load_photos(event_id) {
             })
         })
     })
+}
+
+function deleteEvent (event_id) {
+    console.log("start delete event");
+    const confirmMessage = "Are you sure you want to delete this event?";
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    fetch(`/event/delete/${event_id}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF_TOKEN,
+        },
+    })
+    .then(response => {
+        if (response.status === 200) {
+            // Request was successful
+            window.location.href = '/';
+        } else if (response.status === 403) {
+            // Permission denied
+            alert("Permission Denied");
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
 }
