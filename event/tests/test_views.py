@@ -7,7 +7,6 @@ from django.utils import timezone
 from event.models import Event, GroupEvent, EventVisibility, Status, EventRequest
 from group.models import Group
 from main.models import JoinMode, Photo
-import unittest
 
 class BaseViewTest(TestCase):
     def setUp(self):
@@ -36,7 +35,7 @@ class BaseViewTest(TestCase):
             'end_time': timezone.now() + timezone.timedelta(hours=2),
         }
 
-class CreateEventViewTest(BaseViewTest):
+class EventCreateViewTest(BaseViewTest):
     # GET Cases
     def test_create_event_no_group_id(self):
         self.client.login(username='testuser', password='testpassword')
@@ -137,14 +136,14 @@ class EventProfileViewTest(BaseViewTest2):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'event/profile.html')
 
-class AllEventViewTest(BaseViewTest2):
+class EventAllViewTest(BaseViewTest2):
     def test_all_events_view_GET(self):
         response = self.client.get(reverse('all_events'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'event/all.html')
         self.assertContains(response, 'Test Event')  # Check if event names are present
 
-class EditEventViewTest(BaseViewTest2):
+class EventEditViewTest(BaseViewTest2):
     # GET Cases
     def test_edit_event_as_host(self):
         self.client.login(username='testuser', password='testpassword')
@@ -189,7 +188,7 @@ class EditEventViewTest(BaseViewTest2):
         # Check if the form has errors
         self.assertFormError(response, 'form', 'hosts', 'This field is required.')
 
-class EventManageTest(BaseViewTest2):
+class EventManageViewTest(BaseViewTest2):
     def setUp(self):
         super().setUp()
         self.event_request = EventRequest.objects.create(
@@ -249,7 +248,7 @@ class EventManageTest(BaseViewTest2):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
 
-class EventAttendanceTest(BaseViewTest2):
+class EventAttendanceViewTest(BaseViewTest2):
     def test_toggle_event_attendance_view(self):
         self.client.login(username='testuser2', password='testpassword2')
 
@@ -302,7 +301,7 @@ class EventAttendanceTest(BaseViewTest2):
         self.assertEqual(response.status_code, 302)
         # self.assertRedirects(response, '/user/login/?next=/event/toggle_request/' + str(self.event.id) + '/')
 
-class ShowEventAttendeesTest(BaseViewTest2):
+class ShowEventAttendeesViewTest(BaseViewTest2):
     def setUp(self):
         super().setUp()  # Call the parent setup to set up common data
         self.event.attendees.add(self.user2)
@@ -330,7 +329,7 @@ class ShowEventAttendeesTest(BaseViewTest2):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-class HandleRequestViewTest(BaseViewTest2):
+class EventHandleRequestViewTest(BaseViewTest2):
     def setUp(self):
         super().setUp()
         self.event_request = EventRequest.objects.create(
@@ -394,7 +393,7 @@ class HandleRequestViewTest(BaseViewTest2):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
 
-class ChangeStatusEventTest(BaseViewTest2):
+class EventChangeStatusViewTest(BaseViewTest2):
     def test_change_status_active(self):
         # Log in the user
         self.client.login(username='testuser', password='testpassword')
@@ -450,7 +449,7 @@ class ChangeStatusEventTest(BaseViewTest2):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
 
-class DeleteEventViewTest(BaseViewTest2):
+class EventDeleteViewTest(BaseViewTest2):
     def test_delete_event_success(self):
         # Log in the user
         self.client.login(username='testuser', password='testpassword')
@@ -487,11 +486,7 @@ class DeleteEventViewTest(BaseViewTest2):
         # Check if the event still exists
         self.assertTrue(Event.objects.filter(pk=self.event.id).exists())
 
-class AddPhotoViewTest(BaseViewTest2):
-    def setUp(self):
-        super().setUp()
-        # Create a photo file
-
+class EventAddPhotoViewTest(BaseViewTest2):
     def test_add_photo_authenticated_attendee(self):
         self.client.login(username='testuser', password='testpassword')
         uploaded_file = SimpleUploadedFile(
@@ -535,7 +530,7 @@ class AddPhotoViewTest(BaseViewTest2):
         self.assertFalse(Photo.objects.filter(related_event=self.event).exists())
         self.assertEqual(self.event.photos.count(), 0)
 
-class IsAttendeeViewTest(BaseViewTest2):
+class EventIsAttendeeViewTest(BaseViewTest2):
     def test_is_attendee_authenticated_and_attendee(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('event_is_attendee', args=[str(self.event.id)]))
@@ -556,7 +551,7 @@ class IsAttendeeViewTest(BaseViewTest2):
         data = response.json()
         self.assertFalse(data['is_attendee'])  # The user should not be an attendee
 
-class GetPhotosViewTest(BaseViewTest2):
+class EventGetPhotosViewTest(BaseViewTest2):
     def test_get_photos_with_photos(self):
         self.photo1 = Photo.objects.create(
             uploaded_by=self.user,

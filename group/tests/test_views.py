@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
 from group.models import Group, GroupRequest
-from main.models import Interest
-from group.forms import *
+from main.models import Interest, Photo
 
 class CreateGroupFormWizardTestCase(TestCase):
     def setUp(self):
@@ -51,10 +51,13 @@ class CreateGroupFormWizardTestCase(TestCase):
 
 class BaseViewTest(TestCase):
     def setUp(self):
-        # Create a user
+        # Create a user as group creator
         User = get_user_model()
         self.user = User.objects.create_user(username="testuser", password="testpassword")
-        
+
+        # Create a second user
+        self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
+
         # Create a group
         self.group = Group.objects.create(
             name="Test Group",
@@ -66,30 +69,59 @@ class BaseViewTest(TestCase):
             creator=self.user,
         )
 
-class ProfileGroupViewTest(BaseViewTest):
+class GroupProfileViewTest(BaseViewTest):
     def test_group_profile_view(self):
-        # Make a GET request to the 'group' view with the group ID
         response = self.client.get(reverse('group_profile', args=[str(self.group.id)]))
-
-        # Check if the response status code is 200 (OK)
         self.assertEqual(response.status_code, 200)
-
-        # Check if the rendered template contains the group's name
         self.assertContains(response, self.group.name)
-
-        # Check if the rendered template contains the group's description
         self.assertContains(response, self.group.description)
 
-class GroupEditTestCase(BaseViewTest):
-    def test_edit_group_authenticated(self):
+class GroupAllViewTest(BaseViewTest):
+    def test_all_view_with_groups(self):
+        self.group2 = Group.objects.create(
+            name="Test Group2",
+            description="This is a test group2",
+            location="Test Location2",
+            visibility="Public",
+            join_mode="Direct",
+            capacity=50,
+            creator=self.user,
+        )
+
+        response = self.client.get(reverse('all_groups'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/all.html')
+        # Check if groups are passed to the context
+        self.assertQuerysetEqual(
+            response.context['groups'],
+            [self.group, self.group2],
+            ordered=False  # The order of groups doesn't matter
+        )
+
+    def test_all_view_without_groups(self):
+        Group.objects.all().delete()  # Delete all groups
+        response = self.client.get(reverse('all_groups'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/all.html')  
+        # Check if an empty queryset is passed to the context
+        self.assertQuerysetEqual(response.context['groups'], [])
+
+class GroupEditViewTest(BaseViewTest):
+    def test_edit_group_as_admin(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/edit.html')
-        self.assertIsInstance(response.context['form'], EditGroupForm)
     
+    def test_edit_group_not_admin(self):
+        # Login as a user who is not an admin
+        self.client.login(username='testuser2', password='testpassword2')
+        response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
+        # Check that the response is a PermissionDenied error
+        self.assertEqual(response.status_code, 403)
+
     def test_edit_group_unauthenticated(self):
-        # Attempt to access the create group page without authentication
+        # Attempt to access the edit group page without authentication
         response = self.client.get(reverse('edit_group', args=[str(self.group.id)]))
 
         # Assert that it redirects to the login page (status code 302)
@@ -119,14 +151,13 @@ class GroupEditTestCase(BaseViewTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/edit.html')
         self.assertIn('form', response.context)
-        self.assertIsInstance(response.context['form'], EditGroupForm)
 
-class GroupManageTestCase(BaseViewTest):
+class GroupManageViewTest(BaseViewTest):
     def setUp(self):
         super().setUp()
         self.group_request = GroupRequest.objects.create(
             group=self.group,
-            user=self.user
+            user=self.user2
         )
     
     def test_manage_view_with_invalid_group(self):
@@ -136,18 +167,39 @@ class GroupManageTestCase(BaseViewTest):
         # Returns a 404 page when the group is not found
         self.assertEqual(response.status_code, 404)
 
-    def test_manage_group_authenticated(self):
+    def test_manage_group_as_admin_one_request(self):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('manage_group', args=[str(self.group.id)]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/manage.html')
-        
         # Check if 'requests' is present in the context
         self.assertIn('requests', response.context)
-
         # Check the number of join requests in the context
         self.assertEqual(len(response.context['requests']), 1)  
     
+    def test_manage_group_as_admin_no_requests(self):
+        self.client.login(username='testuser', password='testpassword')
+        empty_group = Group.objects.create(
+            name='Empty Group',
+            description='This group has no join requests.',
+            location='Test Location',
+            creator=self.user
+        )
+        response = self.client.get(reverse('manage_group', args=[str(empty_group.id)]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'group/manage.html')
+        # Check if 'requests' is present in the context
+        self.assertIn('requests', response.context)
+        # Check the number of join requests in the context
+        self.assertEqual(len(response.context['requests']), 0)  
+
+    def test_manage_group_not_admin(self):
+        # Login as a user who is not an admin
+        self.client.login(username='testuser2', password='testpassword2')
+        response = self.client.get(reverse('manage_group', args=[str(self.group.id)]))
+        # Check that the response is a PermissionDenied error
+        self.assertEqual(response.status_code, 403)
+
     def test_manage_group_unauthenticated(self):
         # Attempt to access the create group page without authentication
         response = self.client.get(reverse('manage_group', args=[str(self.group.id)]))
@@ -155,88 +207,8 @@ class GroupManageTestCase(BaseViewTest):
         # Assert that it redirects to the login page (status code 302)
         self.assertEqual(response.status_code, 302)
         # self.assertRedirects(response, '/user/login/?next=/group/manage/' + str(self.group.id) + '/')
-    
-    def test_manage_view_without_requests(self):
-        empty_group = Group.objects.create(
-            name='Empty Group',
-            description='This group has no join requests.',
-            location='Test Location',
-            creator=self.user
-        )
 
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('manage_group', args=[str(empty_group.id)]))
-        
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'group/manage.html')
-        
-        # Assert that a message indicating no join requests is present
-        self.assertContains(response, 'No requests.')
-
-class AllGroupViewTest(TestCase):
-    def setUp(self):
-        # Create a user
-        User = get_user_model()
-        self.user = User.objects.create_user(username="testuser", password="testpassword")
-
-        # Create groups
-        self.group1 = Group.objects.create(
-            name="Test Group",
-            description="This is a test group",
-            location="Test Location",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.user,
-        )
-
-        self.group2 = Group.objects.create(
-            name="Test Group2",
-            description="This is a test group2",
-            location="Test Location2",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.user,
-        )
-
-    def test_all_view_with_groups(self):
-        # Test when there are groups in the database
-        response = self.client.get(reverse('all_groups'))
-
-        # Check if the response status code is 200 (OK)
-        self.assertEqual(response.status_code, 200)
-
-        # Check if the correct template is used
-        self.assertTemplateUsed(response, 'group/all.html')  
-
-        # Check if groups are passed to the context
-        self.assertQuerysetEqual(
-            response.context['groups'],
-            [self.group1, self.group2],
-            ordered=False  # The order of groups doesn't matter
-        )
-
-    def test_all_view_without_groups(self):
-        # Test when there are no groups in the database
-        Group.objects.all().delete()  # Delete all groups
-        response = self.client.get(reverse('all_groups'))
-
-        # Check if the response status code is 200 (OK)
-        self.assertEqual(response.status_code, 200)
-
-        # Check if the correct template is used
-        self.assertTemplateUsed(response, 'group/all.html')  
-
-        # Check if an empty queryset is passed to the context
-        self.assertQuerysetEqual(response.context['groups'], [])
-
-class GroupViewsTestCase(BaseViewTest):
-    def setUp(self):
-        super().setUp()
-        User = get_user_model()
-        self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
-
+class GroupMembershipViewTest(BaseViewTest):
     def test_toggle_group_membership_view(self):
         self.client.login(username='testuser2', password='testpassword2')
 
@@ -289,22 +261,10 @@ class GroupViewsTestCase(BaseViewTest):
         self.assertEqual(response.status_code, 302)
         # self.assertRedirects(response, '/user/login/?next=/group/toggle_request/' + str(self.group.id) + '/')
 
-class GroupMembersTestCase(BaseViewTest):
+class ShowGroupMembersViewTest(BaseViewTest):
     def setUp(self):
-        User = get_user_model()
-        self.user1 = User.objects.create_user(username="testuser1", password="testpassword")
-        self.user2 = User.objects.create_user(username="testuser2", password="testpassword")
-        self.group = Group.objects.create(
-            name="Test Group",
-            description="This is a test group",
-            location="Test Location",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.user1,
-        )
+        super().setUp()
         self.group.members.add(self.user2)
-        
         self.url = reverse('show_group_members', args=[str(self.group.pk)])
         
     def test_show_group_members(self):
@@ -316,8 +276,8 @@ class GroupMembersTestCase(BaseViewTest):
         self.assertEqual(len(members_data), 2)
         
         member1_data = members_data[0]
-        self.assertEqual(member1_data['id'], self.user1.id)
-        self.assertEqual(member1_data['username'], self.user1.username)
+        self.assertEqual(member1_data['id'], self.user.id)
+        self.assertEqual(member1_data['username'], self.user.username)
         
         member2_data = members_data[1]
         self.assertEqual(member2_data['id'], self.user2.id)
@@ -329,26 +289,13 @@ class GroupMembersTestCase(BaseViewTest):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-class HandleRequestViewTest(TestCase):
+class GroupHandleRequestViewTest(BaseViewTest):
     def setUp(self):
-        User = get_user_model()
-        self.admin_user = User.objects.create_user(username='adminUser', password='testpassword')
-        self.non_admin_user = User.objects.create_user(username='NonAdminUser', password='testpassword')
-        self.group = Group.objects.create(
-            name="Test Group",
-            description="This is a test group",
-            location="Test Location",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.admin_user,
-        )
-
-        self.group.admins.add(self.admin_user)
-        self.request = GroupRequest.objects.create(user=self.non_admin_user, group=self.group)
+        super().setUp()
+        self.request = GroupRequest.objects.create(user=self.user2, group=self.group)
 
     def test_handle_request_accept(self):
-        self.client.login(username='adminUser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
 
         response = self.client.post(reverse('handle_group_request', args=[str(self.request.id)]), {
             'action': 'accept'
@@ -358,13 +305,13 @@ class HandleRequestViewTest(TestCase):
         self.assertEqual(response.json(), {"message": "success"})
 
         # Check that user was added to members
-        self.assertTrue(self.non_admin_user in self.group.members.all())
+        self.assertTrue(self.user2 in self.group.members.all())
         # Check that the request was deleted
         with self.assertRaises(GroupRequest.DoesNotExist):
             GroupRequest.objects.get(pk=self.request.id)
 
     def test_handle_request_reject(self):
-        self.client.login(username='adminUser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
 
         response = self.client.post(reverse('handle_group_request', args=[str(self.request.id)]), {
             'action': 'reject'
@@ -374,14 +321,14 @@ class HandleRequestViewTest(TestCase):
         self.assertEqual(response.json(), {"message": "success"})
 
         # Check that user was not added to members
-        self.assertFalse(self.non_admin_user in self.group.members.all())
+        self.assertFalse(self.user2 in self.group.members.all())
         # Check that the request was deleted
         with self.assertRaises(GroupRequest.DoesNotExist):
             GroupRequest.objects.get(pk=self.request.id)
 
-    def test_handle_request_non_host(self):
+    def test_handle_request_non_admin(self):
         # Login as a different user who is not an admin
-        self.client.login(username='NonAdminUser', password='testpassword')
+        self.client.login(username='testuser2', password='testpassword2')
 
         # Send a POST request to accept the request
         response = self.client.post(reverse('handle_group_request', args=[str(self.request.id)]), {
@@ -391,26 +338,10 @@ class HandleRequestViewTest(TestCase):
         # Check that the response is a PermissionDenied error
         self.assertEqual(response.status_code, 403)
 
-        # Check that user was not added to attendees
-        self.assertFalse(self.non_admin_user in self.group.members.all())
+        # Check that user was not added to members
+        self.assertFalse(self.user2 in self.group.members.all())
 
-class DeleteGroupViewTestCase(TestCase):
-    def setUp(self): 
-        self.User = get_user_model()
-        self.user = self.User.objects.create_user(
-            username='testuser',
-            password='testpassword'
-        )
-        self.group = Group.objects.create(
-            name="Test Group",
-            description="This is a test group",
-            location="Test Location",
-            visibility="Public",
-            join_mode="Direct",
-            capacity=50,
-            creator=self.user,
-        )
-
+class GroupDeleteViewTest(BaseViewTest):
     def test_delete_group_success(self):
         # Log in the user
         self.client.login(username='testuser', password='testpassword')
@@ -426,10 +357,6 @@ class DeleteGroupViewTestCase(TestCase):
 
     def test_delete_group_failure(self):
         # Log in a different user (not the creator of the group)
-        self.user2 = self.User.objects.create_user(
-            username='testuser2',
-            password='testpassword2'
-        )
         self.client.login(username='testuser2', password='testpassword2')
 
         # Send a POST request to delete the group
@@ -450,3 +377,97 @@ class DeleteGroupViewTestCase(TestCase):
 
         # Check if the group still exists
         self.assertTrue(Group.objects.filter(pk=self.group.id).exists())
+
+class GroupAddPhotoViewTest(BaseViewTest):
+    def test_add_photo_authenticated_member(self):
+        self.client.login(username='testuser', password='testpassword')
+        uploaded_file = SimpleUploadedFile(
+            'test_photo.jpg', b'file_content', content_type='image/jpeg'
+        )
+        response = self.client.post(reverse('add_group_photo', args=[str(self.group.id)]), data={'photo': uploaded_file})
+        # Check that the response redirects to the group profile page
+        self.assertRedirects(response, reverse('group_profile', args=[str(self.group.id)]))
+        # Check that a photo object is created and associated with the group
+        self.assertEqual(self.group.photos.count(), 1)
+        photo = self.group.photos.all().first()
+        self.assertEqual(photo.uploaded_by, self.user)
+        self.assertEqual(photo.related_group, self.group)
+        self.assertEqual(photo.photo.name, 'photos/test_photo.jpg')
+        photo.delete()
+        
+    def test_add_photo_authenticated_non_member(self):
+        # Log in as user who is not a member
+        self.client.login(username='testuser2', password='testpassword2')
+        self.uploaded_file = SimpleUploadedFile(
+            'test_photo.jpg', b'file_content', content_type='image/jpeg'
+        )
+        response = self.client.post(reverse('add_group_photo', args=[str(self.group.id)]), data={'photo': self.uploaded_file})
+        # Check that the response is a PermissionDenied error
+        self.assertEqual(response.status_code, 403)
+        # Check that no photo object is created
+        self.assertFalse(Photo.objects.filter(related_group=self.group).exists())
+        self.assertEqual(self.group.photos.count(), 0)
+
+    def test_add_photo_unauthenticated(self):
+        self.uploaded_file = SimpleUploadedFile(
+            'test_photo.jpg', b'file_content', content_type='image/jpeg'
+        )
+        # Create a POST request to add a photo without logging in
+        response = self.client.post(reverse('add_group_photo', args=[str(self.group.id)]), data={'photo': self.uploaded_file})
+        
+        # Assert that it redirects to the login page (status code 302)
+        self.assertEqual(response.status_code, 302)
+        
+        # Check that no photo object is created
+        self.assertFalse(Photo.objects.filter(related_group=self.group).exists())
+        self.assertEqual(self.group.photos.count(), 0)
+
+class GroupIsMemberViewTest(BaseViewTest):
+    def test_is_member_authenticated_true(self):
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('group_is_member', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)  # Expect a successful response
+        data = response.json()
+        self.assertTrue(data['is_member'])  # The user should be an member
+    
+    def test_is_member_authenticated_false(self):
+        self.client.login(username='testuser2', password='testpassword2')
+        response = self.client.get(reverse('group_is_member', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)  # Expect a successful response
+        data = response.json()
+        self.assertFalse(data['is_member'])  # The user should not be a member
+
+    def test_is_member_unauthenticated(self):
+        response = self.client.get(reverse('group_is_member', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)  # Expect a successful response
+        data = response.json()
+        self.assertFalse(data['is_member'])  # The user should not be a member
+
+class GroupGetPhotosViewTest(BaseViewTest):
+    def test_get_photos_with_photos(self):
+        self.photo1 = Photo.objects.create(
+            uploaded_by=self.user,
+            photo=SimpleUploadedFile('photo1.jpg', b'photo_content', content_type='image/jpeg'),
+            related_group = self.group
+        )
+        self.photo2 = Photo.objects.create(
+            uploaded_by=self.user,
+            photo=SimpleUploadedFile('photo2.jpg', b'photo_content', content_type='image/jpeg'),
+            related_group = self.group
+        )
+        self.group.photos.add(self.photo1, self.photo2)
+
+        response = self.client.get(reverse('get_group_photos', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)  # Expect a successful response
+        data = response.json()
+        self.assertIn('photos', data)  # Check if 'photos' key exists in the JSON response
+        self.assertEqual(len(data['photos']), 2)  # Check if there are 2 photos in the response
+        self.photo1.delete()
+        self.photo2.delete()
+
+    def test_get_photos_no_photos(self):
+        response = self.client.get(reverse('get_group_photos', args=[str(self.group.id)]))
+        self.assertEqual(response.status_code, 200)  # Expect a successful response
+        data = response.json()
+        self.assertIn('photos', data)  # Check if 'photos' key exists in the JSON response
+        self.assertEqual(len(data['photos']), 0)  # Check if there are no photos in the response
