@@ -1,3 +1,8 @@
+.form-img {
+    width: 100%;
+    object-fit: cover;
+}
+
 .right-box {
     position: sticky;
     top: 50px;
