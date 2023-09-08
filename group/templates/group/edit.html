@@ -1,5 +1,8 @@
 {% extends "main/layout.html" %}
 {% load static %}
+{% block head %}
+<link href="{% static 'group/styles.css' %}" rel="stylesheet">
+{% endblock %}
 {% block body %}
 <div class="container-fluid pt-3" style="max-width: 900px;">
     <div class="card mb-4">
@@ -18,7 +21,7 @@
                     <div class="row">
                         {% if photo_url %}
                         <div class="col-md-3">
-                            <img src="{{ photo_url }}" class="photo">
+                            <img src="{{ photo_url }}" class="form-img">
                         </div>
                         {% endif %}
                         <div class="col-md-9">
@@ -28,6 +31,7 @@
                             </div>
                         </div>
                     </div>
+                    <br>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
