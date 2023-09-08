@@ -1,28 +1,42 @@
 {% extends "main/layout.html" %}
 {% load static %}
-{% block body %}
-<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
-<form action="" method="post">
-  {% csrf_token %}
-  <table>
-    {% if wizard.steps.prev %}
-    <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">Back</button>
-    {% endif %}
-    {{ wizard.management_form }}
-    {% if wizard.form.forms %}
-        {{ wizard.form.management_form }}
-        {% for form in wizard.form.forms %}
-            {{ form }}
-        {% endfor %}
-    {% else %}
-        {{ wizard.form }}
-    {% endif %}
-  </table>
-  <input id="btn-submit" type="submit" value="Next"/>
-    
-</form>
 
+{% block body %}
+<div class="container-fluid pt-3" style="max-width: 500px;">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center text-center">
+                <div class="col">
+                    <h6 class="mb-0">Create Group</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ wizard.management_form }}
+                {% if wizard.form.forms %}
+                    {{ wizard.form.management_form }}
+                    {% for form in wizard.form.forms %}
+                        {{ form }}
+                    {% endfor %}
+                {% else %}
+                      {{ wizard.form }}
+                {% endif %} 
+                <br>         
+                <div class="text-center">
+                    {% if wizard.steps.prev %}
+                    <button class="btn btn-secondary" formnovalidate="formnovalidate" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">Back</button>
+                    {% endif %}
+                    <input class="btn btn-primary" type="submit" value="Next"/>
+                </div>
+            </form>
+      </div>
+  </div>
+</div>
 {% endblock %}
+
 {% block script %}
 <script src="{% static 'main/location_api.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>

@@ -1,15 +1,110 @@
 {% extends "main/layout.html" %}
 {% load static %}
+{% block head %}
+<link href="{% static 'group/styles.css' %}" rel="stylesheet">
+{% endblock %}
 {% block body %}
-
-<form method="POST" action="{% url 'edit_group' group_id %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div>
-    <input type="submit" value="Save" id ="save_groupEdit" class="btn btn-primary">
+<div class="container-fluid pt-3" style="max-width: 900px;">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row align-items-center text-center">
+                <div class="col">
+                    <h6 class="mb-0">Edit Group</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'edit_group' group_id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h6 class="heading-small text-muted mb-4">Group Details</h6>
+                <div>
+                    <div class="row">
+                        {% if photo_url %}
+                        <div class="col-md-3">
+                            <img src="{{ photo_url }}" class="form-img">
+                        </div>
+                        {% endif %}
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.cover_photo.id_for_label }}">Photo</label>
+                                {{ form.cover_photo }}
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.name.id_for_label }}">Name</label>
+                                {{ form.name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.description.id_for_label }}">Description</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.location.id_for_label }}">Location</label>
+                                {{ form.location }}
+                                {{ form.location_lat }}
+                                {{ form.location_lng }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.interests.id_for_label }}">Tags</label>
+                                {{ form.interests }}
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.admins.id_for_label }}">Admins</label>
+                                {{ form.admins }}
+                            </div>
+                        </div>
+                    </div>                  
+                </div>
+                <hr class="horizontal dark my-4">
+                <h6 class="heading-small text-muted mb-4">Settings</h6>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.join_mode.id_for_label }}">Join Mode</label>
+                                {{ form.join_mode }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.visibility.id_for_label }}">Visibility</label>
+                                {{ form.visibility }}
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.capacity.id_for_label }}">Capacity</label>
+                                {{ form.capacity }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <input type="submit" class="btn btn-primary" value="Save"/>
+                    <a class="btn btn-danger" href="{% url 'group_profile' group_id %}">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
-
+</div>
 {% endblock %}
 
 {% block script %}
