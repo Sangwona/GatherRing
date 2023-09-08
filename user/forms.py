@@ -30,24 +30,23 @@ class EditUserForm(forms.ModelForm):
             'location_lat' : forms.HiddenInput(attrs={'id': 'location-lat'}),
             'location_lng' : forms.HiddenInput(attrs={'id': 'location-lng'}),
         }
-
         
-    def clean(self):
-        cleaned_data = super().clean()
-        new_password1 = cleaned_data.get("new_password1")
-        new_password2 = cleaned_data.get("new_password2")
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     new_password1 = cleaned_data.get("new_password1")
+    #     new_password2 = cleaned_data.get("new_password2")
 
-        if new_password1 and new_password1 != new_password2:
-            raise forms.ValidationError("New passwords do not match.")
+    #     if new_password1 and new_password1 != new_password2:
+    #         raise forms.ValidationError("New passwords do not match.")
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        new_password = self.cleaned_data.get("new_password1")
+    # def save(self, commit=True):
+    #     user = super().save(commit=False)
+    #     new_password = self.cleaned_data.get("new_password1")
 
-        if new_password:
-            user.set_password(new_password)
+    #     if new_password:
+    #         user.set_password(new_password)
 
-        if commit:
-            user.save()
+    #     if commit:
+    #         user.save()
 
-        return user
+    #     return user

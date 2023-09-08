@@ -62,6 +62,8 @@ class CreateGroupFormWizard(LoginRequiredMixin, SessionWizardView):
 @login_required
 def edit(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
+    if request.user not in group.admins.all():
+        raise PermissionDenied
     
     if (request.method == "POST"):
         editGroupForm = EditGroupForm(request.POST, request.FILES, instance=group)
@@ -73,7 +75,8 @@ def edit(request, group_id):
     
     return render(request, "group/edit.html", {
         "form": editGroupForm,
-        "group_id": group_id
+        "group_id": group_id,
+        "photo_url": group.cover_photo.url if group.cover_photo else None
     })
 
 @login_required

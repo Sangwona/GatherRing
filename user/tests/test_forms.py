@@ -58,42 +58,42 @@ class EditUserFormTestCase(TestCase):
         form = EditUserForm(data, instance=self.user)
         self.assertTrue(form.is_valid())
 
-    def test_password_mismatch(self):
-        # Create a user object for testing
-        data = {
-            'photo': 'test_photo.jpg',
-            'bio': 'Test bio',
-            'location': 'Test location',
-            'new_password1': 'newpassword',
-            'new_password2': 'differentpassword',
-        }
-        form = EditUserForm(data, instance=self.user)
-        self.assertFalse(form.is_valid())
+    # def test_password_mismatch(self):
+    #     # Create a user object for testing
+    #     data = {
+    #         'photo': 'test_photo.jpg',
+    #         'bio': 'Test bio',
+    #         'location': 'Test location',
+    #         'new_password1': 'newpassword',
+    #         'new_password2': 'differentpassword',
+    #     }
+    #     form = EditUserForm(data, instance=self.user)
+    #     self.assertFalse(form.is_valid())
 
-    def test_password_change(self):
-        # Create a user object for testing
-        data = {
-            'photo': 'test_photo.jpg',
-            'bio': 'Test bio',
-            'location': 'Test location',
-            'new_password1': 'newpassword',
-            'new_password2': 'newpassword',
-        }
-        form = EditUserForm(data, instance=self.user)
-        self.assertTrue(form.is_valid())
-        form.save()
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.check_password('newpassword'))
+    # def test_password_change(self):
+    #     # Create a user object for testing
+    #     data = {
+    #         'photo': 'test_photo.jpg',
+    #         'bio': 'Test bio',
+    #         'location': 'Test location',
+    #         'new_password1': 'newpassword',
+    #         'new_password2': 'newpassword',
+    #     }
+    #     form = EditUserForm(data, instance=self.user)
+    #     self.assertTrue(form.is_valid())
+    #     form.save()
+    #     self.user.refresh_from_db()
+    #     self.assertTrue(self.user.check_password('newpassword'))
 
-    def test_no_password_change(self):
-        # Create a user object for testing
-        data = {
-            'photo': 'test_photo.jpg',
-            'bio': 'Test bio',
-            'location': 'Test location',
-        }
-        form = EditUserForm(data, instance=self.user)
-        self.assertTrue(form.is_valid())
-        form.save()
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.check_password('newpassword'))  # Password shouldn't change
+    # def test_no_password_change(self):
+    #     # Create a user object for testing
+    #     data = {
+    #         'photo': 'test_photo.jpg',
+    #         'bio': 'Test bio',
+    #         'location': 'Test location',
+    #     }
+    #     form = EditUserForm(data, instance=self.user)
+    #     self.assertTrue(form.is_valid())
+    #     form.save()
+    #     self.user.refresh_from_db()
+    #     self.assertFalse(self.user.check_password('newpassword'))  # Password shouldn't change
