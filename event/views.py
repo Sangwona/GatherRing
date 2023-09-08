@@ -5,58 +5,62 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 
-from .forms import CreateEventForm, CreateGroupEventForm, EditEventForm
-from .models import Event, EventRequest, Status
+from .forms import CreateEventForm, EditEventForm
+from .models import Event, GroupEvent, EventRequest, Status
 from group.models import Group
 from main.models import Photo
 from main.forms import AddPhotoForm
 
 # Create your views here.
 @login_required
-def create(request):
+def create(request, group_id=None):
+    group = get_object_or_404(Group, pk=group_id) if group_id else None
+    if group and request.user not in group.admins.all():
+        raise PermissionDenied
+    initial_data = {}
+    if group:
+        initial_data['groups'] = [group]
+
+    form = CreateEventForm(initial=initial_data, user=request.user)
+        
     if request.method == "POST":
-        createEventForm = CreateEventForm(request.POST)
-        if createEventForm.is_valid():
-            event = createEventForm.save(commit=False)
-            event.creator = request.user
-            event.save()
-            return event_profile(request, event.id)
-        else:
-            return render(request, "event/create.html", {
-                'form': createEventForm
-            })
-    else:
-        return render(request, "event/create.html", {
-            'form': CreateEventForm(),
-        }) 
+        form = CreateEventForm(request.POST, user=request.user)
+        if form.is_valid():
+            if 'groups' in form.cleaned_data and form.cleaned_data['groups']:
+                for group in form.cleaned_data.get('groups'):
+                    groupEvent = GroupEvent.objects.create(
+                        name=form.cleaned_data['name'],
+                        description=form.cleaned_data['description'],
+                        visibility=form.cleaned_data['visibility'],
+                        join_mode=form.cleaned_data['join_mode'],
+                        capacity=form.cleaned_data['capacity'],
+                        location=form.cleaned_data['location'],
+                        location_lat=form.cleaned_data['location_lat'],
+                        location_lng=form.cleaned_data['location_lng'],
+                        start_time=form.cleaned_data['start_time'],
+                        end_time=form.cleaned_data['end_time'],
+                        creator=request.user,
+                        group=group,
+                    )
+                return event_profile(request, groupEvent.id)
+            else:
+                event = form.save(commit=False)
+                event.creator = request.user
+                event.save()
+                return event_profile(request, event.id)
+        else: 
+            print(form.errors)
+            
+    return render(request, "event/create.html", {
+        'form': form,
+        'group': group
+    })            
     
 @login_required
-def create_ingroup(request, group_id):
-    group = get_object_or_404(Group, pk=group_id)
-    if request.method == "POST":
-        createGroupEventForm = CreateGroupEventForm(request.POST)
-        if createGroupEventForm.is_valid():
-            group_event = createGroupEventForm.save(commit=False)
-            group_event.creator = request.user
-            group_event.group = group
-            group_event.save()
-
-            return event_profile(request, group_event.id)
-
-        else:
-            return render(request, "event/create_ingroup.html", {
-                'form': createGroupEventForm,
-                'group_id' : group_id
-            })        
-
-    else:
-        return render(request, "event/create_ingroup.html", {
-            'form': CreateGroupEventForm(),
-            'group_id' : group_id
-        }) 
-    
 def edit(request, event_id):
-    event = Event.objects.get(pk=event_id)
+    event = get_object_or_404(Event, pk=event_id)
+    if request.user not in event.hosts.all():
+        raise PermissionDenied
 
     if request.method == "POST":
         form = EditEventForm(request.POST, request.FILES, instance=event)

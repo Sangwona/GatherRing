@@ -1,7 +1,15 @@
 from django import forms
-from .models import Event, GroupEvent
+from .models import Event
+from group.models import Group
 
-class CreateEventForm(forms.ModelForm):            
+class CreateEventForm(forms.ModelForm):
+    # group field is not required
+    groups = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,  
+    )
+
     class Meta:
         model = Event
         exclude = ['cover_photo', 'status', 'created_at', 'creator', 'hosts', 'attendees', 'photos']
@@ -19,10 +27,11 @@ class CreateEventForm(forms.ModelForm):
             'interests': forms.CheckboxSelectMultiple() 
         }
 
-class CreateGroupEventForm(CreateEventForm):            
-    class Meta:
-        model = GroupEvent
-        exclude = ['cover_photo', 'status', 'created_at', 'creator', 'hosts', 'attendees', 'photos', 'group']
+    # Filter groups queryset with groups that the user is admin of
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['groups'].queryset = user.administrating_groups.all()
 
 class EditEventForm(forms.ModelForm):            
     class Meta:
@@ -43,8 +52,3 @@ class EditEventForm(forms.ModelForm):
             'hosts': forms.CheckboxSelectMultiple(),
             'interests': forms.CheckboxSelectMultiple()
         }
-
-class EditGroupEventForm(EditEventForm):            
-    class Meta:
-        model = GroupEvent
-        exclude = ['created_at', 'creator', 'attendees', 'photos', 'group']

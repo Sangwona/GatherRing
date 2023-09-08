@@ -46,7 +46,7 @@
                         {% endif %}
 
                         {% if user in group.members.all %}
-                            <a class="btn btn-secondary m-2" href="{% url 'create_event_ingroup' group.id %}">Create Event</a>
+                            <a class="btn btn-secondary m-2" href="{% url 'create_event' group.id %}">Create Event</a>
                             {% if user != group.creator %}
                                 <button class="btn btn-secondary m-2 join_button" >Leave Group</button>
                             {% endif %}

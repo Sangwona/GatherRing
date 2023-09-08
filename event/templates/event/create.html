@@ -12,7 +12,11 @@
             </div>
         </div>
         <div class="card-body">
+        {% if group %}
+            <form action="{% url 'create_event' group.id %}" method="post">
+        {% else %}
             <form action="{% url 'create_event' %}" method="post">
+        {% endif %}
                 {% csrf_token %}
                 <h6 class="heading-small text-muted mb-4">Event Details</h6>
                 <div>
@@ -57,12 +61,20 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label class="form-control-label" for="{{ form.interests.id_for_label }}">Tags</label>
                                 {{ form.interests }}
                             </div>
                         </div>
+                        {% if user.administrating_groups.all %}
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-control-label" for="{{ form.groups.id_for_label }}">Post Event in Groups</label>
+                                {{ form.groups }}
+                            </div>
+                        </div>
+                    {% endif %}
                     </div>
                 </div>
                 <hr class="horizontal dark my-4">
