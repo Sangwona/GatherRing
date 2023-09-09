@@ -21,11 +21,13 @@
                 <h6 class="heading-small text-muted mb-4">Event Details</h6>
                 <div>
                     <div class="row">
-                        {% if photo_url %}
                         <div class="col-md-3">
-                            <img src="{{ photo_url }}" class="form-img">
-                        </div>
+                        {% if photo_url %}
+                            <img src="{{ photo_url }}" class="form-img preview">
+                        {% else %}
+                            <img src="{{ fallback_images|random }}" class="form-img preview" alt="">    
                         {% endif %}
+                        </div>
                         <div class="col-md-9">
                             <div class="form-group">
                                 <label class="form-control-label" for="{{ form.cover_photo.id_for_label }}">Photo</label>
@@ -127,5 +129,6 @@
 
 {% block script %}
 <script src="{% static 'main/location_api.js' %}"></script>
+<script src="{% static 'main/preview_photo.js' %}"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>
 {% endblock %}

@@ -1,14 +1,23 @@
+{% load static %}
+
 <div class="container tile">
     {% for event in events %}
     <a href="{% url 'event_profile' event.id %}" class="card">
+        <div class="tile-photo">
         {% if event.cover_photo %}
             <img src="{{ event.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
+        {% else %}
+            <img src="{{ fallback_images|random }}" class="card-img-top" alt="event_cover_image"> 
         {% endif %}     
+        </div>
         <div class="card-body">
             <h5 class="card-title">{{ event.name | truncatewords:10 }}</h5>
             <p class="card-text">
-                <p><small class="text-muted">Location: {{ event.location }}</small></p>
-                <p><small class="text-muted">member count {{ event.attendees.count }}</small></p>
+                <small class="text-muted"><span><i class="fa-solid fa-location-dot"></i></span>{{ event.location }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-users"></i></span>{{ event.attendees.count }}/{{event.capacity}}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-crown"></i></span>{{event.creator}}</small>
             </p>
         </div>
     </a>

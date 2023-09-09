@@ -6,6 +6,11 @@
                 <div class="card-body p-4">
                     <h3 class="card-title">{{ event.name }}</h3>
                     <p class="card-subtitle mb-2 text-muted">
+                        <p>
+                        {% if event.creator.cover_photo %}
+                            <img src="{{ event.creator.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
+                        {% endif %} 
+                        {{event.creator}}</p>
                         {{event.location}} &nbsp;
                         {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}
                     </p>
@@ -41,7 +46,7 @@
                     <div class="row">
                         <div class="col-md-12">     
                             <h6>About this Event</h6>
-                            <hr class="mt-0 mb-4">
+                            <hr class="mt-0 mb-3">
                             <p>{{ event.description }}</p>
                         </div>
                     </div>
@@ -51,7 +56,7 @@
                     <div class="row">
                         <div class="col-md-12"> 
                             <h6>Location</h6>
-                            <hr class="mt-0 mb-4">   
+                            <hr class="mt-0 mb-3">   
                             <p>{{ event.location }}</p>
                             <div id="map" style="width:500px; height:500px;" data-lat="{{ event.location_lat }}" data-lng="{{ event.location_lng }}"></div>
                         </div>
@@ -63,7 +68,7 @@
                     <div class="row">
                         <div class="col-md-12">     
                             <h6>Details</h6>
-                            <hr class="mt-0 mb-4">
+                            <hr class="mt-0 mb-3">
                             {% if event.group %}
                             <p>Group: {{ event.group.name }} </p>
                             {% endif %}
