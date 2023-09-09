@@ -1,0 +1,43 @@
+
+.tile {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-auto-rows: 10rem;
+  gap: 1rem;
+  width: 100%;  
+  box-sizing: border-box;
+}
+  
+  .tile a {
+    display: flex;
+    text-decoration: none;
+    color: black;
+    transition: all ease-out 0.2s;
+    flex-direction: row;
+  }
+  
+  .tile a:hover {
+    transform: scale(1.01);
+    background-color: rgb(248, 244, 244);
+  }
+  .tile-photo {
+    max-height: 10rem;
+    max-width: 10rem;
+  }
+  
+  .tile .card .card-img-top {
+    height: 100%;
+    border-top-right-radius: 0;
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-bottom-left-radius: calc(0.25rem - 1px);
+    object-fit: cover;
+  }
+  h5 {
+    text-overflow: ellipsis;
+  }
+  .tile .card .card-body {
+    padding: 0.9rem;
+    max-height: 100%;
+    max-width: 75%;
+    
+  }

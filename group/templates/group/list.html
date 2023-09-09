@@ -3,12 +3,17 @@
     <a href="{% url 'group_profile' group.id %}" class="card">
         {% if group.cover_photo %}
             <img src="{{ group.cover_photo.url }}" class="card-img-top" alt="group_cover_image"> 
+        {% else %}
+            <img src="{{ fallback_images|random }}" class="card-img-top" alt="group_cover_image"> 
         {% endif %}     
         <div class="card-body">
             <h5 class="card-title">{{ group.name | truncatewords:10 }}</h5>
             <p class="card-text">
-                <p><small class="text-muted">Location: {{ group.location }}</small></p>
-                <p><small class="text-muted">member count {{ group.members.count }}</small></p>
+                <small class="text-muted"><span><i class="fa-solid fa-location-dot"></i></span>{{ group.location }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-users"></i></span>{{ group.members.count }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-crown"></i></span>{{group.creator}}</small>
             </p>
         </div>
     </a>
