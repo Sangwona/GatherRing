@@ -47,13 +47,7 @@ function joinOrLeaveEvent() {
         fetch(`/event/toggle_attendance/${event_id}/`)
         .then(response => response.json())
         .then(data => {
-            if (data.joined) {
-                join_btn.textContent = "Leave Event";
-            }
-            else {
-                join_btn.textContent = "Join Event";
-            }
-            document.querySelector(`.attendee_count`).textContent = `${data.attendee_count}`;        
+            location.reload();        
         })
     }
 }
@@ -99,15 +93,6 @@ function cancelOrActiveEvent() {
         .then((response) => response.json())
         .then((data) => {
             location.reload();
-            // if (data.isActive) { 
-            //     cancel_btn.classList.remove('reactive')
-            //     cancel_btn.classList.add('cancel')
-            //     cancel_btn.textContent = 'Cancel Event'
-            // } else {
-            //     cancel_btn.classList.remove('cancel')
-            //     cancel_btn.classList.add('reactive')
-            //     cancel_btn.textContent = 'Reactivate Event'
-            // }
         })
         .catch((error) => console.log(error))
 }

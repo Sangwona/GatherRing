@@ -406,15 +406,11 @@ class EventChangeStatusViewTest(BaseViewTest2):
         response = self.client.post(url, json.dumps(data), content_type='application/json')
 
         # Check if the response is successful (status code 200)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
 
         # Check if the event status has changed to ACTIVE
         self.event.refresh_from_db()
         self.assertEqual(self.event.status, Status.ACTIVE)
-
-        # Check if the response data contains 'isActive' as True
-        response_data = json.loads(response.content)
-        self.assertTrue(response_data['isActive'])
 
     def test_change_status_cancel(self):
         # Log in the user
@@ -428,15 +424,11 @@ class EventChangeStatusViewTest(BaseViewTest2):
         response = self.client.post(url, json.dumps(data), content_type='application/json')
 
         # Check if the response is successful (status code 200)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
 
         # Check if the event status has changed to CANCELED
         self.event.refresh_from_db()
         self.assertEqual(self.event.status, Status.CANCELED)
-
-        # Check if the response data contains 'isActive' as False
-        response_data = json.loads(response.content)
-        self.assertFalse(response_data['isActive'])
 
     def test_change_status_unauthenticated(self):
         # Define the data for the request
