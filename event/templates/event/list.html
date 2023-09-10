@@ -7,12 +7,14 @@
         {% if event.cover_photo %}
             <img src="{{ event.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
         {% else %}
-            <img src="{{ fallback_images|random }}" class="card-img-top" alt="event_cover_image"> 
+            <img src="{{ fallback_images|random }}" class="card-img-top" alt="event_cover_image">
         {% endif %}     
         </div>
         <div class="card-body">
             <h5 class="card-title">{{ event.name | truncatewords:10 }}</h5>
             <p class="card-text">
+                <small class="text-muted"><i class="fa-solid fa-clock"></i>{{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}</small>
+                <br>
                 <small class="text-muted"><span><i class="fa-solid fa-location-dot"></i></span>{{ event.location }}</small>
                 <br>
                 <small class="text-muted"><span><i class="fa-solid fa-users"></i></span>{{ event.attendees.count }}/{{event.capacity}}</small>

@@ -1,29 +1,35 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const group_id = document.querySelector('#button-div').getAttribute('data-group-id');
-    const user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
+let group_id;
+let user_is_authenticated;
+let join_btn;
+let request_btn;
+let delete_btn;
 
-    const join_btn = document.querySelector('.join_button');
-    const request_btn = document.querySelector('.request_button');
-    const delete_btn = document.querySelector('#btn-delete');
+document.addEventListener('DOMContentLoaded', function() {
+    group_id = document.querySelector('#button-div').getAttribute('data-group-id');
+    user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
+
+    join_btn = document.querySelector('.join_button');
+    request_btn = document.querySelector('.request_button');
+    delete_btn = document.querySelector('#btn-delete');
 
     if (join_btn) {
-        join_btn.addEventListener('click', () => joinOrLeaveGroup(group_id, user_is_authenticated));
+        join_btn.addEventListener('click', joinOrLeaveGroup);
     }
     if (request_btn) {
-        request_btn.addEventListener('click', () => createOrDeleteGroupRequest(group_id, user_is_authenticated));
+        request_btn.addEventListener('click', createOrDeleteGroupRequest);
     }
     if (delete_btn) {
-        cancel_btn.addEventListener('click', (e) => deleteGroup(e, group_id))
+        cancel_btn.addEventListener('click', deleteGroup)
     }
 
-    document.querySelector('.view-members-btn').addEventListener('click', () => showGroupMembers(group_id));
-    document.querySelector('.photo_upload_button').addEventListener('click', () => showPhotoForm(group_id));
+    document.querySelector('.view-members-btn').addEventListener('click', showGroupMembers);
+    document.querySelector('.photo_upload_button').addEventListener('click', showPhotoForm);
     document.querySelector('#cancel_form').addEventListener('click', cancelPhotoForm);
 
-    load_photos(group_id);
+    load_photos();
 });
 
-function joinOrLeaveGroup(group_id, user_is_authenticated) {
+function joinOrLeaveGroup() {
     if (user_is_authenticated == "True") { 
         fetch(`/group/toggle_membership/${group_id}/`)
             .then(response => response.json())
@@ -42,7 +48,7 @@ function joinOrLeaveGroup(group_id, user_is_authenticated) {
     }
 }
 
-function createOrDeleteGroupRequest(group_id, user_is_authenticated) {
+function createOrDeleteGroupRequest() {
     if (user_is_authenticated == "True") {
         fetch(`/group/toggle_request/${group_id}/`)
             .then(response => response.json())
@@ -60,7 +66,7 @@ function createOrDeleteGroupRequest(group_id, user_is_authenticated) {
     }
 }
 
-function deleteGroup (e, group_id) {
+function deleteGroup () {
     const confirmMessage = "Are you sure you want to delete this group?";
     if (!confirm(confirmMessage)) {
         return;
@@ -87,7 +93,7 @@ function deleteGroup (e, group_id) {
     });
 }
 
-function showGroupMembers(group_id) {
+function showGroupMembers() {
     fetch(`/group/members/${group_id}/`)
         .then(res => res.json())
         .then(members => {
@@ -109,7 +115,7 @@ function hidePopup() {
     document.querySelector('#members-popup').style.display = 'none';
 }
 
-function showPhotoForm(group_id) {
+function showPhotoForm() {
     fetch(`/group/is_member/${group_id}/`)
     .then((response) => response.json())
     .then((data) => {
@@ -128,7 +134,7 @@ function cancelPhotoForm() {
     document.querySelector('#photo-form-popup').style.display = 'none';
 }
 
-function load_photos(group_id) {
+function load_photos() {
     const carousel = document.querySelector('#photos_carousel');
     const carouselInner = document.querySelector("#carousel-inner");
 

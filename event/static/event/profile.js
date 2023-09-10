@@ -1,36 +1,45 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const event_id = document.querySelector('#button-div').getAttribute('data-event-id');
-    const user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
+let event_id;
+let user_is_authenticated;
+let join_btn;
+let request_btn;
+let delete_btn;
 
-    const join_btn = document.querySelector('.join_button');
-    const request_btn = document.querySelector('.request_button');
-    const cancel_btn = document.querySelector('.cancel-event-btn');
-    const delete_btn = document.querySelector('.delete-btn');
-    const upload_btn = document.querySelector('.photo_upload_button');
-    const upload_cancel_btn = document.querySelector('#cancel_form');
-    const view_member_btn = document.querySelector('.view-members-btn');
+document.addEventListener('DOMContentLoaded', function() {
+    event_id = document.querySelector('#button-div').getAttribute('data-event-id');
+    user_is_authenticated = document.querySelector('#button-div').getAttribute('data-is-authenticated');
+
+    join_btn = document.querySelector('.join_button');
+    request_btn = document.querySelector('.request_button');
+    cancel_btn = document.querySelector('.cancel-event-btn');
+    delete_btn = document.querySelector('.delete-btn');
+    upload_btn = document.querySelector('.photo_upload_button');
+    upload_cancel_btn = document.querySelector('#cancel_form');
+    view_member_btn = document.querySelector('.view-members-btn');
+
     if (join_btn) {
-        join_btn.addEventListener('click', () => joinOrLeaveEvent(event_id, user_is_authenticated));
+        join_btn.addEventListener('click', joinOrLeaveEvent);
     }
     if (request_btn) {
-        request_btn.addEventListener('click', () => createOrDeleteEventRequest(event_id, user_is_authenticated));
+        request_btn.addEventListener('click', createOrDeleteEventRequest);
     }
     if (cancel_btn) {
-        cancel_btn.addEventListener('click', (e) => cancelOrActiveEvent(e, event_id));
+        cancel_btn.addEventListener('click', cancelOrActiveEvent);
     }
     if (delete_btn) {
-        delete_btn.addEventListener('click', () => deleteEvent(event_id));
+        delete_btn.addEventListener('click', deleteEvent);
+    }
+    if (view_member_btn) {
+        view_member_btn.addEventListener('click', showEventAttendees);
     }
 
-    upload_btn.addEventListener('click', () => showPhotoForm(event_id));
+    upload_btn.addEventListener('click', showPhotoForm);
     upload_cancel_btn.addEventListener('click', cancelPhotoForm);
-    view_member_btn.addEventListener('click', () => showEventAttendees(event_id));
 
     initMap();
-    load_photos(event_id);
+    load_photos();
 });
 
-function joinOrLeaveEvent(event_id, user_is_authenticated) {
+function joinOrLeaveEvent() {
     if (user_is_authenticated != "True") { 
         alert("You must be logged in to join the event.");
     }
@@ -49,7 +58,7 @@ function joinOrLeaveEvent(event_id, user_is_authenticated) {
     }
 }
 
-function createOrDeleteEventRequest(event_id, user_is_authenticated) {
+function createOrDeleteEventRequest() {
     if (user_is_authenticated != "True") { 
         alert("You must be logged in to join the event.");
     }
@@ -67,9 +76,16 @@ function createOrDeleteEventRequest(event_id, user_is_authenticated) {
     }
 }
 
-function cancelOrActiveEvent(e, event_id) {
-    const isReactive = e.currentTarget.classList.contains('reactive');
-    
+function cancelOrActiveEvent() {
+    const isReactive = cancel_btn.classList.contains('reactive');
+
+    if (!isReactive) {
+        const confirmMessage = "Are you sure you want to cancel this event?";
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+    }
+
     fetch(`/event/change_status/${event_id}/`, {
         method: 'POST',
         headers: {
@@ -82,20 +98,21 @@ function cancelOrActiveEvent(e, event_id) {
         })
         .then((response) => response.json())
         .then((data) => {
-            if (data.isActive) { 
-                cancel_btn.classList.remove('reactive')
-                cancel_btn.classList.add('cancel')
-                cancel_btn.textContent = 'Cancel Event'
-            } else {
-                cancel_btn.classList.remove('cancel')
-                cancel_btn.classList.add('reactive')
-                cancel_btn.textContent = 'Reactivate Event'
-            }
+            location.reload();
+            // if (data.isActive) { 
+            //     cancel_btn.classList.remove('reactive')
+            //     cancel_btn.classList.add('cancel')
+            //     cancel_btn.textContent = 'Cancel Event'
+            // } else {
+            //     cancel_btn.classList.remove('cancel')
+            //     cancel_btn.classList.add('reactive')
+            //     cancel_btn.textContent = 'Reactivate Event'
+            // }
         })
         .catch((error) => console.log(error))
 }
 
-function showEventAttendees(event_id) {
+function showEventAttendees() {
     fetch(`/event/attendees/${event_id}/`)
         .then(res => res.json())
         .then(members => {
@@ -117,7 +134,7 @@ function hidePopup() {
     document.querySelector('#members-popup').style.display = 'none';
 }
 
-function showPhotoForm(event_id) {
+function showPhotoForm() {
     fetch(`/event/is_attendee/${event_id}/`)
     .then((response) => response.json())
     .then((data) => {
@@ -178,7 +195,7 @@ function initMap() {
     }
 }
 
-function load_photos(event_id) {
+function load_photos() {
     const carousel = document.querySelector('#photos_carousel');
     const carouselInner = document.querySelector("#carousel-inner");
 
@@ -201,7 +218,7 @@ function load_photos(event_id) {
     })
 }
 
-function deleteEvent (event_id) {
+function deleteEvent () {
     const confirmMessage = "Are you sure you want to delete this event?";
     if (!confirm(confirmMessage)) {
         return;
