@@ -133,13 +133,13 @@ def toggle_request(request, event_id):
 
     if existing_request:
         existing_request.delete()
-        return JsonResponse({"message": "Request successfully deleted"}, status=204)
+        return JsonResponse({"requested": False}, status=204)
     else:
         eventRequest = EventRequest()
         eventRequest.user = user
         eventRequest.event = event
         eventRequest.save()
-        return JsonResponse({"message": "Request successfully created"}, status=201)
+        return JsonResponse({"requested": True}, status=201)
 
 
 
