@@ -112,19 +112,17 @@ def manage_event(request, event_id):
 @login_required
 def toggle_attendance(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
+    updated_data = {"event_id": event_id,
+                    "user_id": request.user.id
+                    }
     if (request.user in event.attendees.all()):
         event.attendees.remove(request.user)
-        joined = False
+        updated_data["message"] = "Successfully removed attendee"
     else:
         event.attendees.add(request.user)
-        joined = True
+        updated_data["message"] = "Successfully removed attendee"
     
-    data = {
-        'joined': joined,
-        'attendee_count': event.attendees.count()
-    }
-
-    return JsonResponse(data)
+    return JsonResponse(updated_data)
 
 @login_required
 def toggle_request(request, event_id):
@@ -135,15 +133,15 @@ def toggle_request(request, event_id):
 
     if existing_request:
         existing_request.delete()
-        requested = False
+        return JsonResponse({"message": "Request successfully deleted"}, status=204)
     else:
         eventRequest = EventRequest()
         eventRequest.user = user
         eventRequest.event = event
         eventRequest.save()
-        requested = True
+        return JsonResponse({"message": "Request successfully created"}, status=201)
 
-    return JsonResponse({"requested": requested}, status=201)
+
 
 def show_event_attendees(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
@@ -172,15 +170,11 @@ def change_status_event(request, event_id):
     if request.user in event.hosts.all():
         if data.get("action", "") == "reactive":
             event.status = Status.ACTIVE        
-            isActive = True
         else:
             event.status = Status.CANCELED
-            isActive = False
         event.save()
-        data = {
-            'isActive' : isActive
-        }
-    return JsonResponse(data)
+
+    return JsonResponse({"message": "success"}, status=201)   
 
 @login_required
 def add_photo(request, event_id):
