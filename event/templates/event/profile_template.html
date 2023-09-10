@@ -4,15 +4,20 @@
         <div class="col-9">
             <div class="card mb-3">
                 <div class="card-body p-4">
-                    <h3 class="card-title">{{ event.name }}</h3>
+                    <h3 class="card-title">{{ event.name }}
+                    {% if event.status == "Canceled" %}
+                        <span class="badge badge-pill badge-danger">CANCELED</span>
+                    {% endif %}
+                    </h3>
                     <p class="card-subtitle mb-2 text-muted">
-                        <p>
                         {% if event.creator.cover_photo %}
-                            <img src="{{ event.creator.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
-                        {% endif %} 
-                        {{event.creator}}</p>
-                        {{event.location}} &nbsp;
-                        {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}
+                            <img src="{{ event.creator.cover_photo.url }}" class="card-img-top" alt="event_cover_image">
+                        {% else %}
+                            <i class="fa-solid fa-crown"></i>
+                        {% endif %}
+                        {{event.creator}}
+                        <i class="fa-solid fa-location-dot"></i> {{event.location}}
+                        <i class="fa-solid fa-clock"></i> {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}
                     </p>
 
                     <!-- Photos -->
@@ -20,8 +25,10 @@
                         <div class="col-md-12">
                             {% if event.cover_photo %}
                             <img id="cover-photo" src="{{ event.cover_photo.url }}" class="card-img" alt="event photo">
+                            {% else %}
+                            {% comment %} <img id="cover-photo" src="{{ fallback_images|random }}" class="card-img" alt="event photo"> {% endcomment %}
                             {% endif %}
-                            {% if event.photos.count > 1 %}
+                            {% if event.photos.count %}
                             <div id="photos_carousel" class="carousel">
                                 <span id="left" class="carousel-control-prev-icon"></span>
                                 <div id="carousel-inner"></div>
@@ -89,15 +96,17 @@
         <div class="col-3">
             <div class="card mb-3 right-box">
                 <div class="card-body p-4">
-                <!-- Details -->
-                    <p>Date: {{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}</p>
-                    <p>Location: {{event.location}}</p>
-                    
-                    <p>Attendees (<span class="attendee_count">{{event.attendees.count}}</span>)
-                    <button class="view-members-btn btn btn-primary">View Attendees</button>
+                {% if event.status == "Active"%}
+                    <!-- Details -->
+                    <p><i class="fa-solid fa-clock"></i>{{event.start_time |date:"D, M d, g:iA"}}-{{event.end_time |date:"g:iA"}}</p>
+                    <p><i class="fa-solid fa-location-dot"></i>{{event.location}}</p>
+                    <p><i class="fa-solid fa-crown"></i>{{event.creator}}
+                        {% if event.hosts.count > 1%}
+                        + {{event.hosts.count|add:-1 }}
+                        {% endif %}
                     </p>
-                    
-                    
+                    <p><i class="fa-solid fa-users"></i><span class="attendee_count">{{event.attendees.count}}</span>/{{event.capacity}}</p>
+                    <button class="view-members-btn btn btn-primary">View Attendees</button>
                     <div class="d-flex justify-content-center">
                         <div id="popup-overlay" onclick="hidePopup()" style="display: none;"></div>
                         <div id="members-popup" style="display: none;">
@@ -105,16 +114,12 @@
                         </div>
                     </div>
 
-                <!-- Join Buttons -->
-                <div class="row">
-                    <div id="button-div" class="col-md-12" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">
+                    <!-- Join Buttons -->
+                    <div class="row">
+                        <div id="button-div" class="col-md-12" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">
                         {% if user == event.creator %}
                             <button class="btn m-2 btn-danger delete-btn">Delete Event</button>
-                            {% if event.status == 'Active' %}
                             <button class="btn m-2 btn-secondary cancel-event-btn cancel">Cancel Event</button>
-                            {% else %}
-                            <button class="btn m-2 btn-secondary cancel-event-btn reactive">Reactivate Event</button>
-                            {% endif %}
                         {% endif %}
 
                         {% if user in event.hosts.all %} 
@@ -135,9 +140,21 @@
                         {% elif user != event.creator %}
                             <button class="btn m-2 btn-secondary join_button" >Leave this event</button>
                         {% endif %}
+                        </div>
                     </div>
+                {% else %}
+                <div class="alert alert-danger" role="alert">
+                    THIS EVENT IS CANCELED!!
                 </div>
-            </div>
+                    <div id="button-div" class="col-md-12" data-event-id="{{event.id}}" data-is-authenticated="{{ user.is_authenticated }}">
+                    {% if user == event.creator %}
+                        <button class="btn m-2 btn-danger delete-btn">Delete Event</button>
+                        <button class="btn m-2 btn-secondary cancel-event-btn reactive">Reactivate Event</button>
+                    {% endif %}
+                    </div>
+                {% endif %}      
+                </div>
             </div>
         </div>
     </div>
+</div>
