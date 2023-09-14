@@ -2,20 +2,33 @@ let date;
 let distance;
 let category;
 let search_type;
+let search_bar;
 
 document.addEventListener('DOMContentLoaded', function() {
     date = document.querySelector('#dateDropdown');
     distance = document.querySelector('#distanceDropdown');
     category = document.querySelector('#categoryDropdown');
     search_type = document.querySelector('.search-type');
-    
+    search_bar = document.querySelector('.search-box-input');
+    search_button = document.querySelector('.search-box-button');
+
+    search_bar.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            filterResults();
+        }
+    });
+
+    search_button.addEventListener('click', filterResults);
     search_type.addEventListener('change', filterResults);
     document.querySelectorAll('.dropdown').forEach((select) => select.addEventListener('change', filterResults));
 });
 
 function filterResults() {
+    const query = search_bar.value;
     const selectedDate = date.value
     const selectedDistance = distance.value
+    const lat = document.getElementById('location-lat').value;
+    const lng = document.getElementById('location-lng').value;
     const selectedCategory = category.value
     const selectedSearch_type = search_type.checked ? 'Group' : 'Event';
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -26,16 +39,19 @@ function filterResults() {
         date.style.visibility = 'visible'; // Make the element visible
     }    
         
-    fetch(`/search/filter/`, {
+    fetch(`/search/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': CSRF_TOKEN,
         },
         body: JSON.stringify({
+            'query': query,
             'date': selectedDate,
             'userTimezone': userTimezone,
             'distance': selectedDistance,
+            'lat': lat,
+            'lng': lng,
             'category': selectedCategory,
             'search_type': selectedSearch_type,
         })
