@@ -7,14 +7,9 @@
 
 {% block body %}
 <nav class="search-nav">
-    <select class="dropdown" id="dateDropdown" aria-expanded="false">
-        <option class="dropdown-item" value="any">Any Day</option>
-        <option class="dropdown-item" value="today">Today</option>
-        <option class="dropdown-item" value="tomorrow">Tomorrow</option>
-        <option class="dropdown-item" value="week">This week</option>    
-        <option class="dropdown-item" value="weekend">This weekend</option>
-        <option class="dropdown-item" value="custom">Custom</option>
-    </select>
+    <input type="text" id="location"/>
+    <input type="hidden" id="location-lat"/>
+    <input type="hidden" id="location-lng"/>
     <select class="dropdown" id="distanceDropdown" aria-expanded="false">
         <option class="dropdown-item" value="any">Any Distance</option>
         <option class="dropdown-item" value="2">2 miles</option>
@@ -23,22 +18,29 @@
         <option class="dropdown-item" value="25">25 miles</option>
         <option class="dropdown-item" value="custom">Custom</option>
     </select>
+    <select class="dropdown" id="dateDropdown" aria-expanded="false">
+        <option class="dropdown-item" value="any">Any Day</option>
+        <option class="dropdown-item" value="today">Today</option>
+        <option class="dropdown-item" value="tomorrow">Tomorrow</option>
+        <option class="dropdown-item" value="week">This week</option>    
+        <option class="dropdown-item" value="weekend">This weekend</option>
+        <option class="dropdown-item" value="custom">Custom</option>
+    </select>
     <select class="dropdown" id="categoryDropdown" aria-expanded="false">
         <option class="dropdown-item" value="any">Any Category</option>
         {% for category in categories %}
         <option class="dropdown-item" value="{{category.id}}">{{category}}</option>
         {% endfor %}
     </select>
-    <form class="form-inline" action="{% url 'search' %}" method="get">
+
         <div class="search-box">
             <input class="search-box-input" type="text" name="q" />
             <button class="search-box-button">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
-    </form> 
     <div class="switch-button">
-        <input class="switch-button-checkbox search-type" type="checkbox"></input>
+        <input class="switch-button-checkbox search-type" type="checkbox"/>
         <label class="switch-button-label" for="">
             <span class="switch-button-label-span">EVENTS</span>
         </label>
@@ -54,4 +56,6 @@
 
 {% block script %}
 <script src="{% static 'main/search-nav.js' %}"></script>
+<script src="{% static 'main/location_api.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzw6oLgSM7YkqDYEGuyYrp_SSoWvx-IEk&libraries=places"></script>
 {% endblock %}  
