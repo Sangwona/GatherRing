@@ -5,23 +5,8 @@ html, body {
     background-color: #F8F6F4;
 }
 
-@supports not (gap: 1px) {
-    body {
-      padding-top: 2em;
-    }
-  
-    body::before {
-      content: "Your browser doesn't support gap property";
-      display: block;
-      color: #e43;
-      font-weight: bold;
-      position: fixed;
-      top: 1.5em;
-      left: 0;
-      right: 0;
-      z-index: 1;
-      text-align: center;
-    }
+h2 {
+    text-align: center;
 }
 
 i {
@@ -43,26 +28,6 @@ i {
     box-shadow: 2px 2px 3px rgb(198, 225, 234);
 }
 
-h2 {
-    text-align: center;
-    /* padding-bottom: 15px; */
-}
-
-.search{
-    border: none;
-}
-.search-inner-box {
-    border: 1px solid black;
-}
-.SearchBox, .brand-box {
-    text-align:center
-}
-
-.navbar-brand {
-    color:black;
-}
-
-
 #sidebar ul li a {
     text-align: left;
     padding: 10px;
@@ -71,11 +36,13 @@ h2 {
     border-radius: 6px;
     color:rgb(0, 0, 0);
 }
-.nav-item {
+
+#sidebar .nav-item {
     border-radius: 12px;
     transition: all ease-in-out .1s;
 }
-.nav-item:hover {
+
+#sidebar .nav-item:hover {
     background-color: rgb(198, 225, 234);
     transform: scale(1.014);
 }
@@ -94,151 +61,145 @@ h2 {
     margin: auto;
 }
 
-.search-group {
-    border: 3px solid aquamarine;
-}
-
-.search-event {
-    border: 3px solid blue;
-}
 .search-nav {
     display: flex;
     gap: 3rem;
     padding: 1rem;
 }
-.search-nav-item {
-    border: 2px solid rgb(70, 66, 66);
-    background-color: rgb(255, 255, 255);
-    border-radius: 2rem;
-    color:rgb(30, 3, 3);
+
+/* Dropdowns */
+.dropdown {
+    border: none;
+    background: transparent;
 }
 
-.SearchBox {
-    margin:auto;
-    padding: 16px 0 16px 0;
-}
-form{ 
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-.SearchBox-input, 
-.SearchBox-button {
-	border: none;
-	background: none;
-	outline: 0;
-}
-button {cursor: pointer}
-
-.SearchBox {
-    box-sizing: none;
-	--height: 2em;
-	display: flex;
-	
-	border-radius: var(--height);
-	border: 3px solid black;
-	background-color: white;
-	height: var(--height);
+.dropdown:focus { 
+    outline: none; 
 }
 
-.SearchBox,
-.SearchBox:before,
-.SearchBox:after {
+/* Search Box */
+.search-box {
+    --height: 3em;
+    display: flex;
+    margin: auto;
+    height: var(--height);
+    background-color: white;
+    border: 3px solid black;
+    border-radius: var(--height);
     box-sizing: content-box;
 }
-	.SearchBox-input {
-		width: 0;
-		font-size: 1.2em;
-		color: black;
-		width: 200px;
-		padding-left: .5em;
-	}
-	.SearchBox-button {
-		display: flex;
-		border-radius: 50%;
-		width: var(--height);
-		height: var(--height);
-		background-color: black;
-	}
-	.fa-magnifying-glass {
-		margin: auto;
-		color: #fff;
-	}
 
+.search-box-input, 
+.search-box-button {
+    height: var(--height);
+    border: none;
+    background: none;
+    outline: 0;
+}
 
-    .knobs,
-    .layer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
-    
-    .toggle {
-        position: relative;
-        top: 50%;
-        width: 74px;
-        height: 36px;
-        overflow: hidden;
-        border-radius: 100px;
-    }
+.search-box-input:focus, 
+.search-box-button:focus { 
+    outline: none; 
+}
 
-    .checkbox {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 3;
-      }
-      
-      .knobs {
-        z-index: 2;
-      }
-      
-      .layer {
-        width: 100%;
-        background-color: #ebf7fc;
-        transition: 0.3s ease all;
-        z-index: 1;
-      }
-      
-    /* Button 1 */
-    #button-1 .knobs:before {
-        content: "EVENT";
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        color: #fff;
-        font-size: 10px;
-        font-weight: bold;
-        text-align: center;
-        line-height: 1;
-        padding: 9px 4px;
-        background-color: #03a9f4;
-        border-radius: 50%;
-        transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
-    }
-    
-    #button-1 .checkbox:checked + .knobs:before {
-        content: "GROUP";
-        left: 42px;
-        background-color: #f44336;
-    }
-    
-    #button-1 .checkbox:checked ~ .layer {
-    background-color: #fcebeb;
-    }
-    
-    #button-1 .knobs,
-    #button-1 .knobs:before,
-    #button-1 .layer {
-    transition: 0.3s ease all;
-    }
+.search-box-input {
+    width: 200px;
+    font-size: 1.2em;
+    color: black;
+    padding-left: 0.8em;
+    padding-bottom: 0.5em;
+}
+
+.search-box-button {
+    width: var(--height);
+    border-radius: var(--height);
+    background-color: black;
+    margin-right: -1px;
+}
+
+.fa-magnifying-glass {
+    margin: auto;
+    color: #fff;
+}
+
+/* Event/Group Toggle */
+.switch-button {
+    background: black;
+    border-radius: 30px;
+    overflow: hidden;
+    width: 240px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: #21a9a9;
+    position: relative;
+    padding-right: 120px;
+    position: relative;
+}
+  
+.switch-button:before {
+    content: "GROUPS";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+}
+  
+  .switch-button-checkbox {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+  }
+  
+  .switch-button-checkbox:checked + .switch-button-label:before {
+    transform: translateX(120px);
+    transition: transform 300ms linear;
+  }
+  
+  .switch-button-checkbox + .switch-button-label {
+    position: relative;
+    padding: 15px 0;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .switch-button-label {
+    margin-bottom: 0;
+  }
+  
+  .switch-button-checkbox + .switch-button-label:before {
+    content: "";
+    background: white;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 30px;
+    transform: translateX(0);
+    transition: transform 300ms;
+  }
+  
+  .switch-button-label-span {
+    position: relative;
+  }
+
+.title {
+    padding-top: 1em;
+}
 
 #popup-overlay, #popup-overlay-form {
     position: fixed;
