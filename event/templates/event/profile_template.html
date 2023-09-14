@@ -24,9 +24,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             {% if event.cover_photo %}
-                            <img id="cover-photo" src="{{ event.cover_photo.url }}" class="card-img" alt="event photo">
+                            <img id="cover-photo" src="{{ event.cover_photo.url }}" class="card-img" alt="event profile photo">
                             {% else %}
-                            {% comment %} <img id="cover-photo" src="{{ fallback_images|random }}" class="card-img" alt="event photo"> {% endcomment %}
+                            <img src="{{ fallback_images|random }}" class="card-img" alt="event profile photo"> 
                             {% endif %}
                             {% if event.photos.count %}
                             <div id="photos_carousel" class="carousel">

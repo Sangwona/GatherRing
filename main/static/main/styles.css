@@ -28,7 +28,6 @@ i {
     margin-left: 8px;
     margin-right: 8px;
 }
-  
 
 #sidebar {
     padding-left: 12px;
@@ -44,7 +43,18 @@ i {
     box-shadow: 2px 2px 3px rgb(198, 225, 234);
 }
 
-.search-box, .brand-box {
+h2 {
+    text-align: center;
+    /* padding-bottom: 15px; */
+}
+
+.search{
+    border: none;
+}
+.search-inner-box {
+    border: 1px solid black;
+}
+.SearchBox, .brand-box {
     text-align:center
 }
 
@@ -52,9 +62,6 @@ i {
     color:black;
 }
 
-.search{
-    width: 90%;
-}
 
 #sidebar ul li a {
     text-align: left;
@@ -94,6 +101,144 @@ i {
 .search-event {
     border: 3px solid blue;
 }
+.search-nav {
+    display: flex;
+    gap: 3rem;
+    padding: 1rem;
+}
+.search-nav-item {
+    border: 2px solid rgb(70, 66, 66);
+    background-color: rgb(255, 255, 255);
+    border-radius: 2rem;
+    color:rgb(30, 3, 3);
+}
+
+.SearchBox {
+    margin:auto;
+    padding: 16px 0 16px 0;
+}
+form{ 
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.SearchBox-input, 
+.SearchBox-button {
+	border: none;
+	background: none;
+	outline: 0;
+}
+button {cursor: pointer}
+
+.SearchBox {
+    box-sizing: none;
+	--height: 2em;
+	display: flex;
+	
+	border-radius: var(--height);
+	border: 3px solid black;
+	background-color: white;
+	height: var(--height);
+}
+
+.SearchBox,
+.SearchBox:before,
+.SearchBox:after {
+    box-sizing: content-box;
+}
+	.SearchBox-input {
+		width: 0;
+		font-size: 1.2em;
+		color: black;
+		width: 200px;
+		padding-left: .5em;
+	}
+	.SearchBox-button {
+		display: flex;
+		border-radius: 50%;
+		width: var(--height);
+		height: var(--height);
+		background-color: black;
+	}
+	.fa-magnifying-glass {
+		margin: auto;
+		color: #fff;
+	}
+
+
+    .knobs,
+    .layer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    
+    .toggle {
+        position: relative;
+        top: 50%;
+        width: 74px;
+        height: 36px;
+        overflow: hidden;
+        border-radius: 100px;
+    }
+
+    .checkbox {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 3;
+      }
+      
+      .knobs {
+        z-index: 2;
+      }
+      
+      .layer {
+        width: 100%;
+        background-color: #ebf7fc;
+        transition: 0.3s ease all;
+        z-index: 1;
+      }
+      
+    /* Button 1 */
+    #button-1 .knobs:before {
+        content: "EVENT";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        color: #fff;
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1;
+        padding: 9px 4px;
+        background-color: #03a9f4;
+        border-radius: 50%;
+        transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+    }
+    
+    #button-1 .checkbox:checked + .knobs:before {
+        content: "GROUP";
+        left: 42px;
+        background-color: #f44336;
+    }
+    
+    #button-1 .checkbox:checked ~ .layer {
+    background-color: #fcebeb;
+    }
+    
+    #button-1 .knobs,
+    #button-1 .knobs:before,
+    #button-1 .layer {
+    transition: 0.3s ease all;
+    }
 
 #popup-overlay, #popup-overlay-form {
     position: fixed;

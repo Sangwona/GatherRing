@@ -1,48 +1,51 @@
 {% load custom_filters %}
 
+<div class="container tile">
 {% for item in list %}
     {% if item|get_class_name == "Group" %}
-    <a href="{% url 'group_profile' item.id %}" class="search-group list-group-item list-group-item-action flex-column align-items-start">
-        <div class="col-3 list-photo">
-            {% if item.cover_photo %}
-                <img src="{{ item.cover_photo.url }}" class="card-img" alt="group_cover_image"> 
-            {% endif %}                   
-        </div>
-        <div class="col-9">
-            <div class="card-body">
-                <h5 class="card-title">{{ item.name }}</h5>
-                <p class="card-text">{{ item.description | truncatewords:50 }}</p>
-                <div class="d-flex">
-                    <span class="card-text m-2"><small class="text-muted">Location: {{ item.location }}</small></span>
-                    <span class="card-text m-2"><small class="text-muted">Join Mode: {{ item.join_mode }}</small></span>
-                    <span class="card-text m-2"><small class="text-muted">Members: {{ item.members.count }}</small></span>
-                </div>
-            </div>
+    <a href="{% url 'group_profile' item.id %}" class="card">
+        {% if item.cover_photo %}
+            <img src="{{ item.cover_photo.url }}" class="card-img-top" alt="group_cover_image"> 
+        {% else %}
+            <img src="{{ fallback_images|random }}" class="card-img-top" alt="group_cover_image"> 
+        {% endif %}     
+        <div class="card-body">
+            <h5 class="card-title">{{ item.name | truncatewords:10 }}</h5>
+            <p class="card-text">
+                <small class="text-muted"><span><i class="fa-solid fa-location-dot"></i></span>{{ item.location }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-users"></i></span>{{ item.members.count }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-crown"></i></span>{{item.creator}}</small>
+            </p>
         </div>
     </a>
     
     {% else %}
-    <a href="{% url 'event_profile' item.id %}" class="search-event list-group-item list-group-item-action flex-column align-items-start">
-        <div class="col-3 list-photo">
-            {% if item.cover_photo %}
-                <img src="{{ item.cover_photo.url }}" class="card-img" alt="event_cover_image"> 
-            {% endif %}                   
+    <a href="{% url 'event_profile' item.id %}" class="card">
+        <div class="tile-photo">
+        {% if item.cover_photo %}
+            <img src="{{ item.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
+        {% else %}
+            <img src="{{ fallback_images|random }}" class="card-img-top" alt="event_cover_image">
+        {% endif %}     
         </div>
-        <div class="col-9">
-            <div class="card-body">
-                <h5 class="card-title">{{ item.name }}</h5>
-                <p class="card-text">{{ item.description | truncatewords:50 }}</p>
-                <div class="d-flex">
-                    <span class="card-text m-2"><small class="text-muted">Location: {{ item.location }}</small></span>
-                    <span class="card-text m-2"><small class="text-muted">Join Mode: {{ item.join_mode }}</small></span>
-                    <span class="card-text m-2"><small class="text-muted">Members: {{ item.attendees.count }}</small></span>
-                </div>
-            </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ item.name | truncatewords:10 }}</h5>
+            <p class="card-text">
+                <small class="text-muted"><i class="fa-solid fa-clock"></i>{{item.start_time |date:"D, M d, g:iA"}}-{{item.end_time |date:"g:iA"}}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-location-dot"></i></span>{{ item.location }}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-users"></i></span>{{ item.attendees.count }}/{{item.capacity}}</small>
+                <br>
+                <small class="text-muted"><span><i class="fa-solid fa-crown"></i></span>{{item.creator}}</small>
+            </p>
         </div>
     </a>
     {% endif %}
 
-
 {% empty %}
 No results found.
 {% endfor %}
+</div>

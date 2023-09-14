@@ -1,4 +1,5 @@
 from django.templatetags.static import static
+from main.models import Interest
 
 def global_data(request):
     return {
@@ -11,4 +12,6 @@ def global_data(request):
         static('resource/6.jpg'),
         static('resource/7.jpg'),
         static('resource/8.jpg')
-    ]}
+    ],
+        'categories' : Interest.objects.all()
+    }
