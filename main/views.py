@@ -47,14 +47,12 @@ def search(request):
 
 def filter(request):
     data = json.loads(request.body)
-    print(data)
     if data['search_type'] == "Group":
         if 'query_terms' in request.session:
             dataset = Group.objects.filter(id__in=request.session['group_ids'])
         else: 
             dataset = Group.objects.all()
     else:
-        
         if 'query_terms' in request.session:
             dataset = Event.objects.filter(id__in=request.session['event_ids'])
         else: 
@@ -62,13 +60,9 @@ def filter(request):
 
         date = data['date']
         if date != 'any':  
-            now_utc = timezone.now()
-
-            # Create a timezone object for the user's timezone
             user_timezone = pytz.timezone(data['userTimezone'])
+            today = timezone.now().astimezone(user_timezone)
 
-            # Convert the UTC datetime to the user's timezone
-            today = now_utc.astimezone(user_timezone)
             if date == 'today':
                 start_time = datetime.datetime.combine(today, datetime.time.min)
                 end_time = datetime.datetime.combine(today, datetime.time.max)
@@ -85,7 +79,7 @@ def filter(request):
                 end_time = datetime.datetime.combine(saturday + datetime.timedelta(days=1), datetime.time.max)
                         
             dataset = dataset.filter(start_time__gte=start_time)
-            dataset = dataset.filter(start_time__lte=end_time)     
+            dataset = dataset.filter(start_time__lte=end_time)    
     
     # distance = data['distance']
     # if distance != 'any':

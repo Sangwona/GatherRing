@@ -120,7 +120,7 @@ def toggle_attendance(request, event_id):
         updated_data["message"] = "Successfully removed attendee"
     else:
         event.attendees.add(request.user)
-        updated_data["message"] = "Successfully removed attendee"
+        updated_data["message"] = "Successfully added attendee"
     
     return JsonResponse(updated_data)
 

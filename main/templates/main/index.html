@@ -7,58 +7,48 @@
 
 {% block body %}
 <nav class="search-nav">
-    <div class="btn-group">
-        <select class="dropdown" id="dateDropdown" aria-expanded="false">
-            <option class="dropdown-item" value="any">Any Day</option>
-            <option class="dropdown-item" value="today"> Today</option>
-            <option class="dropdown-item" value="tomorrow"> Tomorrow</option>
-            <option class="dropdown-item" value="week"> This week</option>    
-            <option class="dropdown-item" value="weekend"> This weekend</option>
-        </select>
-    </div>
-    <div class="btn-group">
-        <select class="dropdown" id="distanceDropdown" aria-expanded="false">
-            <option class="dropdown-item" value="any"> Any Distance</option>
-            <option class="dropdown-item" value="2"> 2 miles</option>
-            <option class="dropdown-item" value="5"> 5 miles</option>
-            <option class="dropdown-item" value="10"> 10 miles</option>
-            <option class="dropdown-item" value="25"> 25 miles</option>
-            <option class="dropdown-item" value="custom"> custom</option>
-        </select>
-    </div>    
-    <div class="btn-group">
-        <select class="dropdown" id="categoryDropdown" aria-expanded="false">
-            <option class="dropdown-item" value="any"> Any Interest</option>
-            {% for category in categories %}
-            <option class="dropdown-item" value="{{category.id}}">{{category}}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <form action="{% url 'search' %}" method="get">
-        {% csrf_token %}
-        <div class="SearchBox">
-            <input class="SearchBox-input query" type="text" name="q">
-            <button class="SearchBox-button">
+    <select class="dropdown" id="dateDropdown" aria-expanded="false">
+        <option class="dropdown-item" value="any">Any Day</option>
+        <option class="dropdown-item" value="today">Today</option>
+        <option class="dropdown-item" value="tomorrow">Tomorrow</option>
+        <option class="dropdown-item" value="week">This week</option>    
+        <option class="dropdown-item" value="weekend">This weekend</option>
+        <option class="dropdown-item" value="custom">Custom</option>
+    </select>
+    <select class="dropdown" id="distanceDropdown" aria-expanded="false">
+        <option class="dropdown-item" value="any">Any Distance</option>
+        <option class="dropdown-item" value="2">2 miles</option>
+        <option class="dropdown-item" value="5">5 miles</option>
+        <option class="dropdown-item" value="10">10 miles</option>
+        <option class="dropdown-item" value="25">25 miles</option>
+        <option class="dropdown-item" value="custom">Custom</option>
+    </select>
+    <select class="dropdown" id="categoryDropdown" aria-expanded="false">
+        <option class="dropdown-item" value="any">Any Category</option>
+        {% for category in categories %}
+        <option class="dropdown-item" value="{{category.id}}">{{category}}</option>
+        {% endfor %}
+    </select>
+    <form class="form-inline" action="{% url 'search' %}" method="get">
+        <div class="search-box">
+            <input class="search-box-input" type="text" name="q" />
+            <button class="search-box-button">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
     </form> 
-    <div class="toggle r" id="button-1">
-        <input type="checkbox" class="checkbox search-type" />
-        <div class="knobs"></div>
-        <div class="layer"></div>
+    <div class="switch-button">
+        <input class="switch-button-checkbox search-type" type="checkbox"></input>
+        <label class="switch-button-label" for="">
+            <span class="switch-button-label-span">EVENTS</span>
+        </label>
     </div>
 </nav>
-
-{% comment %} <form method="post" action="{% url 'search' %}">
-    {{ form.as_p }}
-    <button type="submit">Search</button>
-</form> {% endcomment %}
 
 <h2 class="title">Upcoming Events!</h2>
 <hr>
 <div id="eventList">
-{% include "main/search_result.html" with list=list %}
+    {% include "main/search_result.html" with list=list %}
 </div>
 {% endblock %}
 

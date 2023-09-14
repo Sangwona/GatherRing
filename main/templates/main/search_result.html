@@ -23,13 +23,11 @@
     
     {% else %}
     <a href="{% url 'event_profile' item.id %}" class="card">
-        <div class="tile-photo">
         {% if item.cover_photo %}
             <img src="{{ item.cover_photo.url }}" class="card-img-top" alt="event_cover_image"> 
         {% else %}
             <img src="{{ fallback_images|random }}" class="card-img-top" alt="event_cover_image">
         {% endif %}     
-        </div>
         <div class="card-body">
             <h5 class="card-title">{{ item.name | truncatewords:10 }}</h5>
             <p class="card-text">
@@ -44,8 +42,5 @@
         </div>
     </a>
     {% endif %}
-
-{% empty %}
-No results found.
 {% endfor %}
 </div>
