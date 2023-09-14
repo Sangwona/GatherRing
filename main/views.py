@@ -86,9 +86,7 @@ def search(request):
 
         for event in dataset:
             event_location = (event.location_lat, event.location_lng)
-            print("event location: " + str(event_location))
             event_distance = geodesic(user_location, event_location).kilometers
-            print(event_distance)
             if event_distance <= max_distance:
                 filter_conditions |= Q(id=event.id)  
 
