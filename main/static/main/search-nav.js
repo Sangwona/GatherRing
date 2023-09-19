@@ -4,14 +4,6 @@ let category;
 let search_type;
 let search_bar;
 
-var h5 = $('.card-body h5');
-var ks = $('.card-title').height();
-while ($(h5).outerHeight() > ks) {
-  $(h5).text(function(index, text) {
-    return text.replace(/\W*\s(\S)*$/, '...');
-  });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     date = document.querySelector('#dateDropdown');
     distance = document.querySelector('#distanceDropdown');
