@@ -33,6 +33,22 @@
 .tile .card .card-body {
     padding: 0.9rem;
 }
+
+.card-title {
+    width: 200px;
+    height: 50px;
+    
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;  /* Number of lines displayed before it truncate */
+    overflow: hidden;
+}
+  
+.card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
   
 @media (max-width: 75em) {
     .tile {
