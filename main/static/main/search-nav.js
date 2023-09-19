@@ -4,6 +4,14 @@ let category;
 let search_type;
 let search_bar;
 
+var h5 = $('.card-body h5');
+var ks = $('.card-title').height();
+while ($(h5).outerHeight() > ks) {
+  $(h5).text(function(index, text) {
+    return text.replace(/\W*\s(\S)*$/, '...');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     date = document.querySelector('#dateDropdown');
     distance = document.querySelector('#distanceDropdown');
@@ -22,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     search_type.addEventListener('change', filterResults);
     document.querySelectorAll('.dropdown').forEach((select) => select.addEventListener('change', filterResults));
 });
+
 
 function filterResults() {
     const query = search_bar.value;
