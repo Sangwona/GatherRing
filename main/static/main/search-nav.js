@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.dropdown').forEach((select) => select.addEventListener('change', filterResults));
 });
 
+
 function filterResults() {
     const query = search_bar.value;
     const selectedDate = date.value
