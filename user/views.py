@@ -6,6 +6,8 @@ from django.http import Http404
 
 from .forms import RegisterForm, LoginForm, EditUserForm
 from .models import User
+from group.models import Group
+from event.models import Event
 
 # Create your views here.
 def login_view(request):
@@ -71,3 +73,25 @@ def edit(request, user_id):
     return render(request, "user/edit.html", {
         "form": editUserForm,
     })
+
+@login_required
+def my_group(request, user_id):
+    if request.user.id == user_id:
+        return render(request, "user/myGroup.html", {
+            "my_list": request.user.created_groups.all().order_by("-created_at"),
+            "admin_list": request.user.administrating_groups.all().order_by("-created_at"),
+            "member_list": request.user.attending_groups.all().order_by("-created_at")
+        })
+    else:
+        raise PermissionDenied
+    
+@login_required
+def my_event(request, user_id):
+    if request.user.id == user_id:
+        return render(request, "user/myEvent.html", {
+            "my_list": request.user.created_events.all().order_by("-start_time"),
+            "hosting_list": request.user.hosting_events.all().order_by("-start_time"),
+            "attending_list": request.user.attending_events.all().order_by("-start_time")
+        })
+    else:
+        raise PermissionDenied

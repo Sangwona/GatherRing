@@ -13,5 +13,7 @@ def global_data(request):
         static('resource/7.jpg'),
         static('resource/8.jpg')
     ],
-        'categories' : Interest.objects.all()
+        'empty_user': static('resource/empty_user.png'),
+        'categories' : Interest.objects.all(),
+        
     }

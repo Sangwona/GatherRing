@@ -1,0 +1,31 @@
+{% extends "main/layout.html" %}
+{% load static %}
+
+{% block head %}
+<link href="{% static 'main/tile_style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<h2 class="title">Groups created by Me</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=my_list %}
+</div>
+
+<h2 class="title">Groups that I am admin</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=admin_list %}
+</div>
+
+<h2 class="title">Groups that I am in</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=member_list %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}  

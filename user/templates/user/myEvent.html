@@ -1,0 +1,31 @@
+{% extends "main/layout.html" %}
+{% load static %}
+
+{% block head %}
+<link href="{% static 'main/tile_style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<h2 class="title">Events created by Me</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=my_list %}
+</div>
+
+<h2 class="title">Events created that I am hosting</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=hosting_list %}
+</div>
+
+<h2 class="title">Events created that I am going to attend</h2>
+<hr>
+<div class="list-div">
+    {% include "main/search_result.html" with list=attending_list %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}  
