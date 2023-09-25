@@ -82,7 +82,7 @@ To get a local copy up and running follow these simple example steps.
 ### Installation
 
 1. Fork and clone the Repo ([See GitHub Docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo?tool=webui))
-2. Move local_settings.py file in the GatherRing directory (same direcory as settings.py) (Contact us for a copy of the file)
+2. Move settings_local.py file in the GatherRing directory (same direcory as settings.py) (Contact us for a copy of the file)
 3. Install the requirements.
     ```sh
    pip install -r requirements.txt
